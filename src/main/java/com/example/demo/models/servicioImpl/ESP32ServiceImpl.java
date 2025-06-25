@@ -31,7 +31,7 @@ public class ESP32ServiceImpl implements ESP32Service{
 
     private static final Logger logger = LoggerFactory.getLogger(ESP32ServiceImpl.class);
     
-    @Value("${esp32.ip:192.168.4.1}")
+    @Value("${esp32.ip:192.168.113.223}")
     private String esp32Ip;
     
     @Value("${esp32.port:80}")

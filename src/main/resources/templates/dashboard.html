@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema ESP - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Fondo animado con líneas */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float-line 15s ease-in-out infinite;
+        }
+
+        .line:nth-child(1) {
+            width: 2px;
+            height: 100px;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .line:nth-child(2) {
+            width: 1px;
+            height: 150px;
+            left: 30%;
+            animation-delay: 3s;
+        }
+
+        .line:nth-child(3) {
+            width: 3px;
+            height: 80px;
+            left: 50%;
+            animation-delay: 6s;
+        }
+
+        .line:nth-child(4) {
+            width: 2px;
+            height: 120px;
+            left: 70%;
+            animation-delay: 9s;
+        }
+
+        .line:nth-child(5) {
+            width: 1px;
+            height: 200px;
+            left: 90%;
+            animation-delay: 12s;
+        }
+
+        @keyframes float-line {
+
+            0%,
+            100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10%,
+            90% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(-50vh) rotate(180deg);
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.3em;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+            animation: slideUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 35px 65px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-title {
+            color: white;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .user-info {
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: white;
+        }
+
+        .token-display {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .token-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .token-value {
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        .token-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3742fa, #2f3542);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ed573, #1e90ff);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #2ed573, #17c0eb);
+            color: white;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .actions {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: rgba(46, 213, 115, 0.2);
+            border: 1px solid rgba(46, 213, 115, 0.5);
+            color: #c8e6c9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideInScale 0.8s ease-out;
+            font-weight: 500;
+        }
+
+        @keyframes slideInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .device-info {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .device-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .device-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 10px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .card {
+                padding: 25px 20px;
+            }
+        }
+
+        /* Efecto de partículas flotantes */
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: float-particle 12s linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            animation-duration: 15s;
+            background: rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Estilos para animaciones de notificación */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fondo animado -->
+    <div class="animated-bg">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </div>
+
+    <!-- Partículas flotantes -->
+    <div class="floating-particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 7s;"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Dashboard Sistema ESP</h1>
+            <p>Sesión activa con dispositivo único</p>
+        </div>
+
+        <!-- Mensaje de éxito -->
+        <div th:if="${mensaje}" class="success-message">
+            <span th:text="${mensaje}"></span>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Tarjeta de información del usuario -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">👤</div>
+                    <div class="card-title">Información del Usuario</div>
+                </div>
+
+                <div class="user-info">
+                    <div class="info-item">
+                        <span class="info-label">Usuario:</span>
+                        <span class="info-value" th:text="${usuario.user_name}">usuario123</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Estado:</span>
+                        <span class="status-badge status-active" th:text="${usuario.estado}">ACTIVO</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Fecha Registro:</span>
+                        <span class="info-value" th:text="${usuario.fechaRegistro}">2025-06-23</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Última Modificación:</span>
+                        <span class="info-value"
+                            th:text="${usuario.fechaModificacion ?: 'Primera sesión'}">2025-06-23</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta del token -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🔑</div>
+                    <div class="card-title">Token de Seguridad</div>
+                </div>
+
+                <div class="token-display">
+                    <div class="token-label">Token único del dispositivo:</div>
+                    <div class="token-value" th:text="${token}" id="tokenValue">a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-success" onclick="copyToken()">📋 Copiar Token</button>
+                    <button class="btn btn-primary" onclick="validateCurrentToken()">✅ Validar Token</button>
+                </div>
+            </div>
+
+            <!-- Tarjeta de información del dispositivo -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">💻</div>
+                    <div class="card-title">Información del Dispositivo</div>
+                </div>
+
+                <div class="device-info">
+                    <div class="device-item">
+                        <span class="device-icon">🌐</span>
+                        <span>Navegador: <span id="browserInfo"></span></span>
+                    </div>
+                    <div class="device-item">
+                        <span class="device-icon">💾</span>
+                        <span>Sistema: <span id="osInfo"></span></span>
+                    </div>
+                    <div class="device-item">
+                        <span class="device-icon">📱</span>
+                        <span>Resolución: <span id="screenInfo"></span></span>
+                    </div>
+                    <div class="device-item">
+                        <span class="device-icon">🕒</span>
+                        <span>Zona Horaria: <span id="timezoneInfo"></span></span>
+                    </div>
+                    <div class="device-item">
+                        <span class="device-icon">🔒</span>
+                        <span>Sesión Única: Garantizada</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <input type="hidden" name="user_name" th:value="${usuario.user_name}">
+                        <button type="submit" class="btn btn-danger">🚪 Cerrar Sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección adicional de acciones -->
+        <div style="text-align: center; margin-top: 40px;">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">Acciones Rápidas</div>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
+                    <button class="btn btn-primary" onclick="refreshToken()">🔄 Renovar Token</button>
+                    <button class="btn btn-primary" onclick="downloadTokenInfo()">💾 Descargar Info</button>
+                </div>
+
+                <!-- Área de acciones simplificada -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variable global simplificada
+        let currentTokenData = null;
+
+        // Obtener información del dispositivo
+        function getDeviceInfo() {
+            const browserInfo = navigator.userAgent.split(')')[0].split('(')[1] || 'Desconocido';
+            document.getElementById('browserInfo').textContent = browserInfo;
+
+            let os = 'Desconocido';
+            if (navigator.userAgent.indexOf('Windows') !== -1) os = 'Windows';
+            else if (navigator.userAgent.indexOf('Mac') !== -1) os = 'macOS';
+            else if (navigator.userAgent.indexOf('Linux') !== -1) os = 'Linux';
+            else if (navigator.userAgent.indexOf('Android') !== -1) os = 'Android';
+            else if (navigator.userAgent.indexOf('iOS') !== -1) os = 'iOS';
+            document.getElementById('osInfo').textContent = os;
+
+            const screenInfo = `${screen.width}x${screen.height}`;
+            document.getElementById('screenInfo').textContent = screenInfo;
+
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById('timezoneInfo').textContent = timezone;
+        }
+
+        // Copiar token al portapapeles
+        function copyToken() {
+            const tokenValue = document.getElementById('tokenValue').textContent.trim();
+            navigator.clipboard.writeText(tokenValue).then(() => {
+                showNotification('✅ Token copiado al portapapeles', 'success');
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = tokenValue;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('✅ Token copiado al portapapeles', 'success');
+            });
+        }
+
+        // Validar token actual
+        function validateCurrentToken() {
+            const token = document.getElementById('tokenValue').textContent.trim();
+            window.location.href = `/validar?token=${encodeURIComponent(token)}`;
+        }
+
+        // Renovar token
+        function refreshToken() {
+            showNotification('🔄 Renovando token...', 'info');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }
+
+        // Función SIMPLIFICADA para generar QR REALISTA
+        function showTokenQR() {
+            console.log('🎯 Iniciando showTokenQR realista...');
+
+            const qrContainer = document.getElementById('qrContainer');
+            const token = document.getElementById('tokenValue').textContent.trim();
+
+            // Obtener nombre de usuario
+            const usernameElements = document.querySelectorAll('.info-value');
+            const username = usernameElements[0] ? usernameElements[0].textContent.trim() : 'usuario';
+
+            if (qrContainer.style.display === 'none' || qrContainer.style.display === '') {
+
+                // Verificar QRCode está disponible
+                if (typeof QRCode === 'undefined') {
+                    console.error('❌ QRCode no está disponible');
+                    showNotification('❌ QRCode no disponible', 'error');
+                    return;
+                }
+
+                console.log('✅ QRCode confirmado disponible');
+
+                // Crear datos del QR
+                currentQRData = {
+                    system: "Sistema ESP32",
+                    username: username,
+                    token: token,
+                    generated: new Date().toISOString(),
+                    validationUrl: window.location.origin + "/validar?token=" + encodeURIComponent(token)
+                };
+
+                console.log('📝 URL del QR:', currentQRData.validationUrl);
+
+                // Actualizar información mostrada
+                document.getElementById('qrUsername').textContent = username;
+                document.getElementById('qrGenerated').textContent = new Date().toLocaleString();
+                document.getElementById('qrTokenShort').textContent = token.substring(0, 12) + '...';
+
+                // Mostrar contenedor
+                qrContainer.style.display = 'block';
+
+                // Obtener canvas
+                const canvas = document.getElementById('qr-canvas');
+                if (!canvas) {
+                    console.error('❌ Canvas no encontrado');
+                    showNotification('❌ Canvas no encontrado', 'error');
+                    return;
+                }
+
+                console.log('🎨 Canvas encontrado, generando QR realista...');
+
+                // Configurar canvas para QR realista
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 200, 200);
+
+                // Fondo blanco limpio
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 200, 200);
+
+                console.log('🔧 Canvas preparado, generando QR realista...');
+
+                // Generar QR REAL con configuración optimizada
+                try {
+                    QRCode.toCanvas(canvas, currentQRData.validationUrl, {
+                        width: 200,
+                        height: 200,
+                        margin: 3,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        },
+                        errorCorrectionLevel: 'M',
+                        type: 'image/png',
+                        quality: 0.92,
+                        rendererOpts: {
+                            quality: 0.92
+                        }
+                    }, function (error) {
+                        if (error) {
+                            console.error('❌ Error QRCode.toCanvas:', error);
+                            showNotification('❌ Error: ' + error.message, 'error');
+
+                            // Mostrar error elegante en canvas
+                            ctx.clearRect(0, 0, 200, 200);
+                            ctx.fillStyle = '#f8f9fa';
+                            ctx.fillRect(0, 0, 200, 200);
+
+                            // Borde elegante
+                            ctx.strokeStyle = '#e9ecef';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(1, 1, 198, 198);
+
+                            // Icono de error
+                            ctx.fillStyle = '#dc3545';
+                            ctx.font = 'bold 24px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('⚠️', 100, 80);
+
+                            // Mensaje de error
+                            ctx.fillStyle = '#6c757d';
+                            ctx.font = '12px Arial';
+                            ctx.fillText('Error al generar QR', 100, 110);
+                            ctx.font = '10px Arial';
+                            ctx.fillText('Revisa la consola', 100, 130);
+                        } else {
+                            console.log('✅ QR REALISTA generado EXITOSAMENTE!');
+                            showNotification('✅ QR generado correctamente', 'success');
+
+                            // Agregar borde sutil al QR
+                            setTimeout(() => {
+                                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                                ctx.lineWidth = 1;
+                                ctx.strokeRect(0.5, 0.5, 199, 199);
+                            }, 100);
+                        }
+                    });
+                } catch (error) {
+                    console.error('❌ Error en try-catch:', error);
+                    showNotification('❌ Error crítico', 'error');
+
+                    // Mostrar error crítico elegante
+                    ctx.clearRect(0, 0, 200, 200);
+                    ctx.fillStyle = '#fff5f5';
+                    ctx.fillRect(0, 0, 200, 200);
+                    ctx.strokeStyle = '#feb2b2';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(1, 1, 198, 198);
+                    ctx.fillStyle = '#e53e3e';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('❌', 100, 85);
+                    ctx.fillStyle = '#718096';
+                    ctx.font = '11px Arial';
+                    ctx.fillText('Error crítico', 100, 110);
+                    ctx.fillText('Contacta soporte', 100, 125);
+                }
+
+            } else {
+                qrContainer.style.display = 'none';
+                console.log('📱 QR ocultado');
+            }
+        }
+
+        // Función de TEST SIMPLE eliminada - ya no es necesaria
+
+        // Función alternativa para generar QR usando método diferente
+        function generateQRAlternative() {
+            const canvas = document.getElementById('qr-canvas');
+            const token = document.getElementById('tokenValue').textContent.trim();
+            const validationUrl = window.location.origin + "/validar?token=" + encodeURIComponent(token);
+
+            if (!canvas) {
+                showNotification('❌ Canvas no disponible', 'error');
+                return;
+            }
+
+            // Método alternativo usando QRCode.toDataURL
+            try {
+                QRCode.toDataURL(validationUrl, {
+                    width: 200,
+                    height: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    },
+                    errorCorrectionLevel: 'M'
+                }, function (error, dataURL) {
+                    if (error) {
+                        console.error('❌ Error método alternativo:', error);
+                        showNotification('❌ Error en método alternativo', 'error');
+                    } else {
+                        const img = new Image();
+                        img.onload = function () {
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 200;
+                            canvas.height = 200;
+                            ctx.clearRect(0, 0, 200, 200);
+                            ctx.drawImage(img, 0, 0, 200, 200);
+                            showNotification('📱 QR generado con método alternativo', 'success');
+                        };
+                        img.src = dataURL;
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Error en método alternativo:', error);
+                showNotification('❌ Método alternativo falló', 'error');
+            }
+        }
+
+        // Función para copiar la URL de validación
+        function copyQRData() {
+            if (currentQRData) {
+                navigator.clipboard.writeText(currentQRData.validationUrl).then(() => {
+                    showNotification('✅ URL de validación copiada', 'success');
+                }).catch(() => {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = currentQRData.validationUrl;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification('✅ URL copiada (método alternativo)', 'success');
+                });
+            } else {
+                showNotification('❌ No hay datos de QR disponibles', 'error');
+            }
+        }
+
+        // Función para probar la URL en una nueva pestaña
+        function testQRUrl() {
+            if (currentQRData) {
+                window.open(currentQRData.validationUrl, '_blank');
+                showNotification('🧪 URL abierta en nueva pestaña', 'info');
+            } else {
+                showNotification('❌ No hay URL para probar', 'error');
+            }
+        }
+
+        // Función para descargar información del token
+        function downloadTokenInfo() {
+            const token = document.getElementById('tokenValue').textContent.trim();
+            const usernameElements = document.querySelectorAll('.info-value');
+            const username = usernameElements[0] ? usernameElements[0].textContent.trim() : 'usuario';
+
+            const validationUrl = window.location.origin + "/validar?token=" + encodeURIComponent(token);
+
+            const info = `
+████████████████████████████████████████████████████████████████
+                    SISTEMA ESP32 - TOKEN DE ACCESO
+████████████████████████████████████████████████████████████████
+
+📋 INFORMACIÓN DEL TOKEN:
+─────────────────────────────────────────────────────────────────
+👤 Usuario: ${username}
+🔑 Token: ${token}
+⏰ Generado: ${new Date().toLocaleString()}
+🌐 Sistema: Sistema ESP32
+
+🔗 URL DE VALIDACIÓN:
+─────────────────────────────────────────────────────────────────
+${validationUrl}
+
+💻 INFORMACIÓN DEL DISPOSITIVO:
+─────────────────────────────────────────────────────────────────
+🌐 Navegador: ${navigator.userAgent.split(')')[0].split('(')[1] || 'Desconocido'}
+📱 Resolución: ${screen.width}x${screen.height}
+🕒 Zona Horaria: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+
+📱 INSTRUCCIONES DE USO:
+─────────────────────────────────────────────────────────────────
+1. 📷 Escanea el código QR con cualquier app lectora de códigos QR
+2. 🔗 O copia la URL de validación para acceder desde otro dispositivo
+3. 🖥️ La URL te llevará directamente al dashboard del sistema
+4. 🔒 El token es único y válido solo para una sesión activa
+
+⚠️  ADVERTENCIAS DE SEGURIDAD:
+─────────────────────────────────────────────────────────────────
+- NO compartas este token con terceros no autorizados
+- Este token permite acceso completo a tu cuenta del Sistema ESP32
+- Si sospechas que fue comprometido, cierra sesión inmediatamente
+- Solo un dispositivo puede estar activo con este token
+
+🔧 SOPORTE TÉCNICO:
+─────────────────────────────────────────────────────────────────
+Sistema generado: ${new Date().toLocaleString()}
+Versión: Sistema ESP32 v1.0
+Documentación: Consulte el manual del usuario
+            `;
+
+            try {
+                const blob = new Blob([info], { type: 'text/plain; charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ESP32-Token-${username}-${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showNotification('💾 Información descargada exitosamente', 'success');
+            } catch (error) {
+                console.error('Error al descargar:', error);
+                showNotification('❌ Error al descargar archivo', 'error');
+            }
+        }
+
+        // Función mejorada para descargar información del token - ELIMINADA (QR removido)
+
+        // Sistema de notificaciones mejorado
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 1000;
+                animation: slideInRight 0.3s ease-out;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            `;
+
+            switch (type) {
+                case 'success':
+                    notification.style.background = 'linear-gradient(135deg, #2ed573, #17c0eb)';
+                    break;
+                case 'error':
+                    notification.style.background = 'linear-gradient(135deg, #ff4757, #ff3838)';
+                    break;
+                case 'info':
+                default:
+                    notification.style.background = 'linear-gradient(135deg, #3742fa, #2f3542)';
+                    break;
+            }
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Auto-actualización de información cada 30 segundos
+        setInterval(() => {
+            const timestamp = document.querySelector('.info-item:last-child .info-value');
+            if (timestamp && timestamp.textContent !== 'Primera sesión') {
+                timestamp.textContent = new Date().toLocaleString();
+            }
+        }, 30000);
+
+        // Inicializar información del dispositivo al cargar la página
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Iniciando Dashboard simplificado...');
+
+            getDeviceInfo();
+
+            // Efecto de escritura en el token
+            const tokenElement = document.getElementById('tokenValue');
+            if (tokenElement) {
+                const tokenText = tokenElement.textContent.trim();
+                tokenElement.textContent = '';
+
+                let i = 0;
+                const typeToken = () => {
+                    if (i < tokenText.length) {
+                        tokenElement.textContent += tokenText.charAt(i);
+                        i++;
+                        setTimeout(typeToken, 50);
+                    }
+                };
+
+                setTimeout(typeToken, 1000);
+            }
+
+            // Mostrar notificación de bienvenida
+            setTimeout(() => {
+                showNotification('🎉 ¡Bienvenido al Sistema ESP!', 'success');
+            }, 2000);
+
+            // Mensaje de funcionalidades disponibles
+            setTimeout(() => {
+                showNotification('✨ Funcionalidades: Renovar Token y Descargar Info', 'info');
+            }, 4000);
+        });
+
+        // Prevenir que se cierre accidentalmente
+        window.addEventListener('beforeunload', function (e) {
+            e.preventDefault();
+            e.returnValue = '¿Estás seguro de que quieres salir? Tu sesión se mantendrá activa.';
+        });
+
+        // Detectar si la página se está cerrando para limpiar
+        window.addEventListener('unload', function () {
+            // Aquí podrías hacer una llamada AJAX para registrar la salida
+            // navigator.sendBeacon('/api/logout', JSON.stringify({user: username}));
+        });
+    </script>
+</body>
+
+</html>

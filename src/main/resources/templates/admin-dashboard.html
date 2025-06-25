@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema ESP - Dashboard Administrativo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Fondo animado con líneas */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float-line 15s ease-in-out infinite;
+        }
+
+        .line:nth-child(1) {
+            width: 2px;
+            height: 100px;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .line:nth-child(2) {
+            width: 1px;
+            height: 150px;
+            left: 30%;
+            animation-delay: 3s;
+        }
+
+        .line:nth-child(3) {
+            width: 3px;
+            height: 80px;
+            left: 50%;
+            animation-delay: 6s;
+        }
+
+        .line:nth-child(4) {
+            width: 2px;
+            height: 120px;
+            left: 70%;
+            animation-delay: 9s;
+        }
+
+        .line:nth-child(5) {
+            width: 1px;
+            height: 200px;
+            left: 90%;
+            animation-delay: 12s;
+        }
+
+        @keyframes float-line {
+
+            0%,
+            100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10%,
+            90% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(-50vh) rotate(180deg);
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.3em;
+        }
+
+        /* Vista de administrador - Lista de usuarios */
+        .admin-view {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .admin-controls {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .admin-title {
+            color: white;
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            animation: slideUp 0.8s ease-out forwards;
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .user-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .user-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .user-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .user-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .user-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 35px 65px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .user-card:hover::before {
+            left: 100%;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            animation: avatarPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes avatarPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 40px rgba(255, 107, 107, 0.8);
+            }
+        }
+
+        .user-info {
+            text-align: center;
+            color: white;
+        }
+
+        .user-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .user-details {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+        }
+
+        .user-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #2ed573, #17c0eb);
+            color: white;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* Vista de usuario individual */
+        .user-view {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s ease;
+            animation: slideUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 35px 65px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-title {
+            color: white;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .user-info-individual {
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: white;
+        }
+
+        .token-display {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .token-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .token-value {
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+            line-height: 1.5;
+            position: relative;
+            z-index: 2;
+        }
+
+        .token-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3742fa, #2f3542);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ed573, #1e90ff);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .actions {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: rgba(46, 213, 115, 0.2);
+            border: 1px solid rgba(46, 213, 115, 0.5);
+            color: #c8e6c9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideInScale 0.8s ease-out;
+            font-weight: 500;
+        }
+
+        @keyframes slideInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Partículas flotantes */
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: float-particle 12s linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            animation-duration: 15s;
+            background: rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .users-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 10px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 10px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .card,
+            .user-card {
+                padding: 25px 20px;
+            }
+
+            .admin-controls {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Buscador de usuarios */
+        .search-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2em;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Animaciones adicionales */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fondo animado -->
+    <div class="animated-bg">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </div>
+
+    <!-- Partículas flotantes -->
+    <div class="floating-particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 7s;"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 id="mainTitle">🚀 Dashboard Sistema ESP</h1>
+            <p id="mainSubtitle">Panel de administración</p>
+        </div>
+
+        <!-- Mensaje de éxito -->
+        <div th:if="${mensaje}" class="success-message">
+            <span th:text="${mensaje}"></span>
+        </div>
+
+        <!-- Vista de administrador - Lista de usuarios -->
+        <div class="admin-view" id="adminView">
+            <div class="admin-controls">
+                <h2 class="admin-title">👑 Panel de Administración</h2>
+
+                <!-- Estadísticas -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Usuarios</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Usuarios Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="onlineUsers">0</div>
+                        <div class="stat-label">Conectados</div>
+                    </div>
+                </div>
+
+                <!-- Buscador -->
+                <div class="search-container">
+                    <input type="text" class="search-input" id="userSearch" placeholder="🔍 Buscar usuarios...">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+
+            <!-- Grid de usuarios -->
+            <div class="users-grid" id="usersGrid">
+                <!-- Los usuarios se cargarán dinámicamente aquí -->
+            </div>
+        </div>
+
+        <!-- Vista de usuario individual -->
+        <div class="user-view" id="userView">
+            <button class="back-button" onclick="showAdminView()">
+                ← Volver a la lista de usuarios
+            </button>
+
+            <div class="dashboard-grid">
+                <!-- Tarjeta de información del usuario -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">👤</div>
+                        <div class="card-title">Información del Usuario</div>
+                    </div>
+
+                    <div class="user-info-individual" id="selectedUserInfo">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Tarjeta del token -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">🔑</div>
+                        <div class="card-title">Token de Seguridad</div>
+                    </div>
+
+                    <div class="token-display">
+                        <div class="token-label">Token único del dispositivo:</div>
+                        <div class="token-value" id="selectedUserToken">No disponible</div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-success" onclick="copySelectedUserToken()">📋 Copiar Token</button>
+                        <button class="btn btn-primary" onclick="regenerateToken()">🔄 Regenerar Token</button>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de acciones administrativas -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">⚙️</div>
+                        <div class="card-title">Acciones Administrativas</div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="downloadSelectedUserInfo()">💾 Descargar Info</button>
+                        <button class="btn btn-primary" onclick="testSelectedUserConnection()">🧪 Test Conexión</button>
+                        <button class="btn btn-success" onclick="activateSelectedUser()" id="activateBtn">✅ Activar
+                            Usuario</button>
+                        <button class="btn btn-danger" onclick="deactivateSelectedUser()" id="deactivateBtn">🚫
+                            Desactivar Usuario</button>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <input type="hidden" name="user_name" th:value="${usuario.user_name}">
+                            <button type="submit" class="btn btn-danger">🚪 Cerrar Sesión</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Variables de Thymeleaf para JavaScript -->
+    <script th:inline="javascript">
+        // Variables del servidor
+        var currentUser = /*[[${usuario.user_name}]]*/ 'Usuario';
+        var userRole = /*[[${usuario.rol?.nombre ?: 'USUARIO'}]]*/ 'USUARIO';
+        var isAdmin = userRole === 'ADMIN';
+        var selectedUserId = null;
+        var selectedUserData = null;
+        var allUsers = [];
+    </script>
+
+    <script>
+        // ========== INICIALIZACIÓN ==========
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Iniciando Dashboard Administrativo...');
+            console.log('Usuario actual:', currentUser);
+            console.log('Rol:', userRole);
+            console.log('Es admin:', isAdmin);
+
+            if (isAdmin) {
+                showAdminView();
+                loadAllUsers();
+            } else {
+                showUserView(null); // Vista normal para usuarios regulares
+                loadCurrentUserData();
+            }
+
+            // Configurar búsqueda
+            setupSearch();
+
+            // Configurar atajos de teclado
+            setupKeyboardShortcuts();
+
+            // Configurar timer de inactividad
+            setupInactivityTimer();
+
+            // Mostrar mensaje de bienvenida
+            showWelcomeMessage();
+        });
+
+        // ========== FUNCIONES DE NAVEGACIÓN ==========
+        function showAdminView() {
+            document.getElementById('adminView').style.display = 'block';
+            document.getElementById('userView').style.display = 'none';
+            document.getElementById('mainTitle').textContent = '🚀 Dashboard Sistema ESP';
+            document.getElementById('mainSubtitle').textContent = 'Panel de administración';
+            selectedUserId = null;
+            selectedUserData = null;
+        }
+
+        function showUserView(userData) {
+            document.getElementById('adminView').style.display = 'none';
+            document.getElementById('userView').style.display = 'block';
+
+            if (userData) {
+                selectedUserData = userData;
+                selectedUserId = userData.idUsuario;
+                document.getElementById('mainTitle').textContent = `👤 ${userData.user_name}`;
+                document.getElementById('mainSubtitle').textContent = 'Detalles del usuario';
+                loadSelectedUserDetails(userData);
+            } else {
+                // Vista para usuario regular
+                document.getElementById('mainTitle').textContent = `👤 ${currentUser}`;
+                document.getElementById('mainSubtitle').textContent = 'Mi perfil';
+            }
+        }
+
+        // ========== FUNCIONES DE CARGA DE DATOS ==========
+        async function loadAllUsers() {
+            try {
+                showNotification('📊 Cargando usuarios...', 'info');
+
+                // Llamada real a la API
+                const response = await fetch('/api/admin/users');
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        showNotification('🔒 Acceso denegado - Permisos insuficientes', 'error');
+                        setTimeout(() => window.location.href = '/login', 2000);
+                        return;
+                    }
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+
+                const users = await response.json();
+                allUsers = users;
+                displayUsers(users);
+                await updateStatsFromAPI();
+                showNotification('✅ Usuarios cargados exitosamente', 'success');
+
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+                showNotification('❌ Error al cargar usuarios: ' + error.message, 'error');
+
+                // Fallback a datos simulados
+                loadSimulatedUsers();
+            }
+        }
+
+        async function updateStatsFromAPI() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalUsers').textContent = stats.totalUsuarios;
+                    document.getElementById('activeUsers').textContent = stats.usuariosActivos;
+                    document.getElementById('onlineUsers').textContent = stats.usuariosConectados;
+                } else {
+                    updateStats(allUsers);
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+                updateStats(allUsers);
+            }
+        }
+
+        function loadSimulatedUsers() {
+            console.log('📋 Cargando datos simulados como fallback...');
+
+            const users = [
+                {
+                    idUsuario: 1,
+                    user_name: 'admin',
+                    estado: 'ACTIVO',
+                    fechaRegistro: '2025-01-15',
+                    fechaModificacion: '2025-06-24',
+                    token: 'admin-token-12345-abcde-67890',
+                    rol: { nombre: 'ADMIN' },
+                    persona: {
+                        nombre: 'Administrador',
+                        paterno: 'Sistema',
+                        ci: '12345678'
+                    }
+                },
+                {
+                    idUsuario: 2,
+                    user_name: 'usuario1',
+                    estado: 'ACTIVO',
+                    fechaRegistro: '2025-02-01',
+                    fechaModificacion: '2025-06-20',
+                    token: 'user1-token-98765-fghij-54321',
+                    rol: { nombre: 'USUARIO' },
+                    persona: {
+                        nombre: 'Juan',
+                        paterno: 'Pérez',
+                        ci: '87654321'
+                    }
+                },
+                {
+                    idUsuario: 3,
+                    user_name: 'maria_tech',
+                    estado: 'ACTIVO',
+                    fechaRegistro: '2025-03-10',
+                    fechaModificacion: '2025-06-23',
+                    token: 'maria-token-11111-zzzzz-22222',
+                    rol: { nombre: 'USUARIO' },
+                    persona: {
+                        nombre: 'María',
+                        paterno: 'García',
+                        ci: '11223344'
+                    }
+                },
+                {
+                    idUsuario: 4,
+                    user_name: 'carlos_dev',
+                    estado: 'INACTIVO',
+                    fechaRegistro: '2025-01-05',
+                    fechaModificacion: '2025-05-15',
+                    token: null,
+                    rol: { nombre: 'USUARIO' },
+                    persona: null
+                },
+                {
+                    idUsuario: 5,
+                    user_name: 'ana_lopez',
+                    estado: 'ACTIVO',
+                    fechaRegistro: '2025-04-18',
+                    fechaModificacion: '2025-06-24',
+                    token: 'ana-token-33333-qqqqq-44444',
+                    rol: { nombre: 'USUARIO' },
+                    persona: {
+                        nombre: 'Ana',
+                        paterno: 'López',
+                        ci: '55667788'
+                    }
+                }
+            ];
+
+            allUsers = users;
+            displayUsers(users);
+            updateStats(users);
+            showNotification('⚠️ Usando datos simulados - Verifique la conexión con el servidor', 'info');
+        }
+
+        async function loadCurrentUserData() {
+            try {
+                const response = await fetch('/control/api/user/current');
+                if (response.ok) {
+                    const userData = await response.json();
+
+                    const currentUserData = {
+                        user_name: userData.username,
+                        estado: 'ACTIVO',
+                        fechaRegistro: userData.fechaRegistro,
+                        fechaModificacion: new Date().toLocaleDateString(),
+                        token: 'current-user-token',
+                        rol: { nombre: userData.rol },
+                        persona: userData.nombreCompleto ? {
+                            nombre: userData.nombreCompleto.split(' ')[0],
+                            paterno: userData.nombreCompleto.split(' ')[1] || '',
+                            ci: userData.ci || 'No disponible'
+                        } : null
+                    };
+
+                    loadSelectedUserDetails(currentUserData);
+                    showNotification('✅ Datos cargados correctamente', 'success');
+                } else {
+                    throw new Error('No se pudieron cargar los datos del usuario');
+                }
+
+            } catch (error) {
+                console.error('Error cargando datos del usuario:', error);
+
+                const currentUserData = {
+                    user_name: currentUser,
+                    estado: 'ACTIVO',
+                    fechaRegistro: '2025-06-24',
+                    fechaModificacion: new Date().toLocaleDateString(),
+                    token: 'current-user-token-hidden',
+                    rol: { nombre: userRole },
+                    persona: {
+                        nombre: 'Usuario',
+                        paterno: 'Actual',
+                        ci: 'No disponible'
+                    }
+                };
+
+                loadSelectedUserDetails(currentUserData);
+                showNotification('⚠️ Datos cargados localmente - Verifique conexión', 'info');
+            }
+        }
+
+        // ========== FUNCIONES DE VISUALIZACIÓN ==========
+        function displayUsers(users) {
+            const usersGrid = document.getElementById('usersGrid');
+            usersGrid.innerHTML = '';
+
+            users.forEach((user, index) => {
+                const userCard = createUserCard(user, index);
+                usersGrid.appendChild(userCard);
+            });
+        }
+
+        function createUserCard(user, index) {
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.onclick = () => showUserView(user);
+
+            const avatar = user.user_name.charAt(0).toUpperCase();
+            const fullName = user.persona ?
+                `${user.persona.nombre} ${user.persona.paterno}` :
+                user.user_name;
+
+            const statusClass = user.estado === 'ACTIVO' ? 'status-active' : 'status-inactive';
+            const hasToken = user.token ? '🔑 Con Token' : '❌ Sin Token';
+            const lastLogin = user.fechaModificacion || 'Nunca';
+
+            card.innerHTML = `
+                <div class="user-avatar">${avatar}</div>
+                <div class="user-info">
+                    <div class="user-name">${user.user_name}</div>
+                    <div class="user-details">
+                        <div class="user-detail-item">
+                            <span>Nombre:</span>
+                            <span>${fullName}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span>Estado:</span>
+                            <span class="status-badge ${statusClass}">${user.estado}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span>Rol:</span>
+                            <span>${user.rol ? user.rol.nombre : 'USUARIO'}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span>Token:</span>
+                            <span>${hasToken}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span>Último acceso:</span>
+                            <span>${lastLogin}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <span>Registrado:</span>
+                            <span>${user.fechaRegistro}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function loadSelectedUserDetails(userData) {
+            const userInfoContainer = document.getElementById('selectedUserInfo');
+            const tokenContainer = document.getElementById('selectedUserToken');
+
+            const fullName = userData.persona ?
+                `${userData.persona.nombre} ${userData.persona.paterno}` :
+                'No disponible';
+
+            const ci = userData.persona ? userData.persona.ci : 'No disponible';
+
+            userInfoContainer.innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">Usuario:</span>
+                    <span class="info-value">${userData.user_name}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Nombre Completo:</span>
+                    <span class="info-value">${fullName}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">CI:</span>
+                    <span class="info-value">${ci}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estado:</span>
+                    <span class="status-badge ${userData.estado === 'ACTIVO' ? 'status-active' : 'status-inactive'}">${userData.estado}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Rol:</span>
+                    <span class="info-value">${userData.rol ? userData.rol.nombre : 'USUARIO'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha Registro:</span>
+                    <span class="info-value">${userData.fechaRegistro}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Última Modificación:</span>
+                    <span class="info-value">${userData.fechaModificacion || 'Primera sesión'}</span>
+                </div>
+            `;
+
+            tokenContainer.textContent = userData.token || 'Token no disponible';
+            updateActionButtons(userData);
+        }
+
+        function updateActionButtons(userData) {
+            const activateBtn = document.getElementById('activateBtn');
+            const deactivateBtn = document.getElementById('deactivateBtn');
+
+            if (activateBtn && deactivateBtn) {
+                if (userData.estado === 'ACTIVO') {
+                    activateBtn.style.display = 'none';
+                    deactivateBtn.style.display = 'inline-block';
+                } else {
+                    activateBtn.style.display = 'inline-block';
+                    deactivateBtn.style.display = 'none';
+                }
+
+                if (userData.user_name === currentUser) {
+                    if (activateBtn) activateBtn.disabled = true;
+                    if (deactivateBtn) {
+                        deactivateBtn.disabled = true;
+                        deactivateBtn.textContent = '🚫 (No puedes desactivarte)';
+                    }
+                }
+            }
+        }
+
+        function updateStats(users) {
+            const totalUsers = users.length;
+            const activeUsers = users.filter(u => u.estado === 'ACTIVO').length;
+            const onlineUsers = users.filter(u => u.token && u.estado === 'ACTIVO').length;
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('onlineUsers').textContent = onlineUsers;
+        }
+
+        // ========== FUNCIONES DE BÚSQUEDA ==========
+        function setupSearch() {
+            if (isAdmin) {
+                document.getElementById('userSearch').addEventListener('input', debounce(function () {
+                    const searchTerm = this.value.trim();
+                    if (searchTerm.length >= 2) {
+                        searchUsersAPI(searchTerm);
+                    } else if (searchTerm.length === 0) {
+                        displayUsers(allUsers);
+                    }
+                }, 300));
+            } else {
+                document.getElementById('userSearch').addEventListener('input', filterUsers);
+            }
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const filteredUsers = allUsers.filter(user =>
+                user.user_name.toLowerCase().includes(searchTerm) ||
+                (user.persona && user.persona.nombre.toLowerCase().includes(searchTerm)) ||
+                (user.persona && user.persona.paterno.toLowerCase().includes(searchTerm)) ||
+                user.estado.toLowerCase().includes(searchTerm) ||
+                (user.rol && user.rol.nombre.toLowerCase().includes(searchTerm))
+            );
+
+            displayUsers(filteredUsers);
+        }
+
+        async function searchUsersAPI(searchTerm) {
+            try {
+                const response = await fetch(`/api/admin/users/search?query=${encodeURIComponent(searchTerm)}`);
+                if (response.ok) {
+                    const users = await response.json();
+                    displayUsers(users);
+                    updateStats(users);
+                } else {
+                    throw new Error('Error en búsqueda');
+                }
+            } catch (error) {
+                console.error('Error en búsqueda:', error);
+                filterUsers();
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func.apply(this, args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // ========== FUNCIONES DE ACCIONES ADMINISTRATIVAS ==========
+        function copySelectedUserToken() {
+            const tokenValue = document.getElementById('selectedUserToken').textContent.trim();
+
+            if (tokenValue === 'No disponible' || tokenValue === 'Token no disponible') {
+                showNotification('❌ No hay token para copiar', 'error');
+                return;
+            }
+
+            navigator.clipboard.writeText(tokenValue).then(() => {
+                showNotification('✅ Token copiado al portapapeles', 'success');
+            }).catch(() => {
+                const textArea = document.createElement('textarea');
+                textArea.value = tokenValue;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('✅ Token copiado al portapapeles', 'success');
+            });
+        }
+
+        async function regenerateToken() {
+            if (!selectedUserData) {
+                showNotification('❌ No hay usuario seleccionado', 'error');
+                return;
+            }
+
+            if (confirm(`¿Regenerar token para ${selectedUserData.user_name}?`)) {
+                try {
+                    showNotification('🔄 Regenerando token...', 'info');
+
+                    const response = await fetch(`/api/admin/users/${selectedUserId}/regenerate-token`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 403) {
+                            throw new Error('Acceso denegado - Permisos insuficientes');
+                        }
+                        const errorText = await response.text();
+                        throw new Error(errorText || 'Error del servidor');
+                    }
+
+                    const result = await response.json();
+                    const newToken = result.nuevoToken;
+
+                    selectedUserData.token = newToken;
+                    document.getElementById('selectedUserToken').textContent = newToken;
+
+                    const userIndex = allUsers.findIndex(u => u.idUsuario === selectedUserId);
+                    if (userIndex !== -1) {
+                        allUsers[userIndex].token = newToken;
+                        displayUsers(allUsers);
+                    }
+
+                    showNotification('✅ Token regenerado exitosamente', 'success');
+
+                } catch (error) {
+                    console.error('Error regenerando token:', error);
+                    showNotification('❌ Error al regenerar token: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function testSelectedUserConnection() {
+            if (!selectedUserData) {
+                showNotification('❌ No hay usuario seleccionado', 'error');
+                return;
+            }
+
+            try {
+                showNotification('🧪 Probando conexión...', 'info');
+
+                const response = await fetch(`/api/admin/users/${selectedUserId}/test-connection`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Acceso denegado - Permisos insuficientes');
+                    }
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.conectado) {
+                    showNotification(`✅ ${result.mensaje}`, 'success');
+                } else {
+                    showNotification(`⚠️ ${result.mensaje}`, 'error');
+                }
+
+            } catch (error) {
+                console.error('Error en test de conexión:', error);
+                showNotification('❌ Error en test de conexión: ' + error.message, 'error');
+            }
+        }
+
+        async function activateSelectedUser() {
+            if (!selectedUserData) {
+                showNotification('❌ No hay usuario seleccionado', 'error');
+                return;
+            }
+
+            if (selectedUserData.estado === 'ACTIVO') {
+                showNotification('ℹ️ El usuario ya está activo', 'info');
+                return;
+            }
+
+            if (confirm(`✅ ¿Activar usuario ${selectedUserData.user_name}?`)) {
+                try {
+                    showNotification('🔄 Activando usuario...', 'info');
+
+                    const response = await fetch(`/api/admin/users/${selectedUserId}/activate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 403) {
+                            throw new Error('Acceso denegado - Permisos insuficientes');
+                        }
+                        const errorText = await response.text();
+                        throw new Error(errorText || 'Error del servidor');
+                    }
+
+                    const result = await response.json();
+
+                    selectedUserData.estado = 'ACTIVO';
+                    loadSelectedUserDetails(selectedUserData);
+
+                    const userIndex = allUsers.findIndex(u => u.idUsuario === selectedUserId);
+                    if (userIndex !== -1) {
+                        allUsers[userIndex] = { ...selectedUserData };
+                        displayUsers(allUsers);
+                        updateStatsFromAPI();
+                    }
+
+                    showNotification(`✅ ${result.mensaje}`, 'success');
+
+                } catch (error) {
+                    console.error('Error activando usuario:', error);
+                    showNotification('❌ Error al activar usuario: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function deactivateSelectedUser() {
+            if (!selectedUserData) {
+                showNotification('❌ No hay usuario seleccionado', 'error');
+                return;
+            }
+
+            if (selectedUserData.user_name === currentUser) {
+                showNotification('❌ No puedes desactivar tu propia cuenta', 'error');
+                return;
+            }
+
+            if (confirm(`⚠️ ¿Desactivar usuario ${selectedUserData.user_name}?\n\nEsta acción cerrará su sesión y revocará su token.`)) {
+                try {
+                    showNotification('🔄 Desactivando usuario...', 'info');
+
+                    const response = await fetch(`/api/admin/users/${selectedUserId}/deactivate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 403) {
+                            throw new Error('Acceso denegado - Permisos insuficientes');
+                        }
+                        const errorText = await response.text();
+                        throw new Error(errorText || 'Error del servidor');
+                    }
+
+                    const result = await response.json();
+
+                    selectedUserData.estado = 'INACTIVO';
+                    selectedUserData.token = null;
+                    loadSelectedUserDetails(selectedUserData);
+
+                    const userIndex = allUsers.findIndex(u => u.idUsuario === selectedUserId);
+                    if (userIndex !== -1) {
+                        allUsers[userIndex] = { ...selectedUserData };
+                        displayUsers(allUsers);
+                        updateStatsFromAPI();
+                    }
+
+                    showNotification(`🚫 ${result.mensaje}`, 'success');
+
+                } catch (error) {
+                    console.error('Error desactivando usuario:', error);
+                    showNotification('❌ Error al desactivar usuario: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function downloadSelectedUserInfo() {
+            if (!selectedUserData) {
+                showNotification('❌ No hay usuario seleccionado', 'error');
+                return;
+            }
+
+            const userData = selectedUserData;
+            const fullName = userData.persona ?
+                `${userData.persona.nombre} ${userData.persona.paterno}` :
+                userData.user_name;
+
+            const info = `
+████████████████████████████████████████████████████████████████
+                    SISTEMA ESP32 - INFORMACIÓN DE USUARIO
+████████████████████████████████████████████████████████████████
+
+📋 INFORMACIÓN DEL USUARIO:
+─────────────────────────────────────────────────────────────────
+👤 Usuario: ${userData.user_name}
+👥 Nombre Completo: ${fullName}
+🆔 CI: ${userData.persona ? userData.persona.ci : 'No disponible'}
+🎭 Rol: ${userData.rol ? userData.rol.nombre : 'USUARIO'}
+📊 Estado: ${userData.estado}
+📅 Fecha Registro: ${userData.fechaRegistro}
+🔄 Última Modificación: ${userData.fechaModificacion || 'Primera sesión'}
+
+🔑 TOKEN DE SEGURIDAD:
+─────────────────────────────────────────────────────────────────
+${userData.token || 'Token no disponible'}
+
+🔗 URL DE VALIDACIÓN:
+─────────────────────────────────────────────────────────────────
+${window.location.origin}/validar?token=${encodeURIComponent(userData.token || '')}
+
+📊 ESTADÍSTICAS DEL SISTEMA:
+─────────────────────────────────────────────────────────────────
+📈 Total de usuarios: ${document.getElementById('totalUsers').textContent}
+✅ Usuarios activos: ${document.getElementById('activeUsers').textContent}
+🟢 Usuarios conectados: ${document.getElementById('onlineUsers').textContent}
+
+📱 INFORMACIÓN ADMINISTRATIVA:
+─────────────────────────────────────────────────────────────────
+🔧 Generado por: ${currentUser} (${userRole})
+⏰ Fecha de generación: ${new Date().toLocaleString()}
+🌐 Sistema: Sistema ESP32 v1.0
+🖥️ Plataforma: ${navigator.userAgent.split(')')[0].split('(')[1] || 'Desconocido'}
+
+⚠️  NOTA DE SEGURIDAD:
+─────────────────────────────────────────────────────────────────
+Este documento contiene información sensible del sistema.
+Mantener en lugar seguro y no compartir con personal no autorizado.
+            `;
+
+            try {
+                const blob = new Blob([info], { type: 'text/plain; charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ESP32-Usuario-${userData.user_name}-${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showNotification('💾 Información descargada exitosamente', 'success');
+            } catch (error) {
+                console.error('Error al descargar:', error);
+                showNotification('❌ Error al descargar archivo', 'error');
+            }
+        }
+
+        // ========== FUNCIONES DE UTILIDAD ==========
+        async function refreshAllData() {
+            if (isAdmin) {
+                showNotification('🔄 Actualizando datos...', 'info');
+                await loadAllUsers();
+                showNotification('✅ Datos actualizados', 'success');
+            } else {
+                await loadCurrentUserData();
+            }
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function (e) {
+                if (!isAdmin) return;
+
+                if (e.ctrlKey || e.metaKey) {
+                    switch (e.key.toLowerCase()) {
+                        case 'r':
+                            e.preventDefault();
+                            refreshAllData();
+                            break;
+                        case 'f':
+                            e.preventDefault();
+                            document.getElementById('userSearch').focus();
+                            break;
+                        case 'b':
+                            e.preventDefault();
+                            if (selectedUserId) {
+                                showAdminView();
+                            }
+                            break;
+                    }
+                }
+
+                if (e.key === 'Escape') {
+                    if (selectedUserId) {
+                        showAdminView();
+                    }
+                }
+            });
+        }
+
+        function setupInactivityTimer() {
+            let inactivityTimer;
+            function resetInactivityTimer() {
+                clearTimeout(inactivityTimer);
+                if (isAdmin) {
+                    inactivityTimer = setTimeout(() => {
+                        if (confirm('⏰ Has estado inactivo por 30 minutos. ¿Deseas continuar tu sesión de administración?')) {
+                            resetInactivityTimer();
+                        } else {
+                            window.location.href = '/logout';
+                        }
+                    }, 30 * 60 * 1000); // 30 minutos
+                }
+            }
+
+            document.addEventListener('mousemove', resetInactivityTimer);
+            document.addEventListener('keypress', resetInactivityTimer);
+            resetInactivityTimer();
+        }
+
+        function showWelcomeMessage() {
+            setTimeout(() => {
+                if (isAdmin) {
+                    showNotification(`🎉 Bienvenido ${currentUser} - Panel de Administración Activado`, 'success');
+                    setTimeout(() => {
+                        showNotification('💡 Tip: Usa Ctrl+R para refrescar, Ctrl+F para buscar, Escape para volver', 'info');
+                    }, 3000);
+                } else {
+                    showNotification(`🎉 Bienvenido ${currentUser} - Dashboard Personal`, 'success');
+                }
+            }, 1000);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 1000;
+                animation: slideInRight 0.3s ease-out;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                max-width: 400px;
+            `;
+
+            switch (type) {
+                case 'success':
+                    notification.style.background = 'linear-gradient(135deg, #2ed573, #17c0eb)';
+                    break;
+                case 'error':
+                    notification.style.background = 'linear-gradient(135deg, #ff4757, #ff3838)';
+                    break;
+                case 'info':
+                default:
+                    notification.style.background = 'linear-gradient(135deg, #3742fa, #2f3542)';
+                    break;
+            }
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Configurar actualización automática cada 5 minutos
+        if (isAdmin) {
+            setInterval(async () => {
+                try {
+                    await updateStatsFromAPI();
+                    console.log('📊 Estadísticas actualizadas automáticamente');
+                } catch (error) {
+                    console.error('Error en actualización automática:', error);
+                }
+            }, 5 * 60 * 1000); // 5 minutos
+        }
+
+        // Prevenir cierre accidental
+        window.addEventListener('beforeunload', function (e) {
+            if (isAdmin && selectedUserId) {
+                e.preventDefault();
+                e.returnValue = '¿Estás seguro de que quieres salir del panel de administración?';
+            }
+        });
+    </script>
+</body>
+
+</html>

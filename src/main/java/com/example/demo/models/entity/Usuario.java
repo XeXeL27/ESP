@@ -1,15 +1,7 @@
 package com.example.demo.models.entity;
 
 import java.time.LocalDate;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,19 +13,26 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
-    private String user;
+    
+    @Column(name = "user_name", unique = true, nullable = false)
+    private String user_name;
+    
+    @Column(nullable = false)
     private String clave;
+    
     private String estado;
+    
+    @Column(unique = true)  // ✅ Token debe ser único
+    private String token;
+    
     private LocalDate fechaRegistro;
     private LocalDate fechaModificacion;
 
-    // Relación ManyToOne: Muchos usuarios pueden pertenecer a una persona
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_persona", nullable = false)
+    @JoinColumn(name = "id_persona", nullable = true)
     private Persona persona;
     
-    // Relación ManyToOne: Muchos usuarios pueden tener un rol
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_rol", nullable = false)
+    @JoinColumn(name = "id_rol", nullable = true)
     private Rol rol;
 }

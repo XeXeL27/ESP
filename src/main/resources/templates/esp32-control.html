@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 ESP32 Nexus - CENTRO DE CONTROL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fondo cyberpunk con hexágonos */
+        .cyber-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 150, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 100, 0, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            z-index: -2;
+        }
+
+        /* Grid de hexágonos animados */
+        .hex-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .hexagon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #00ffff, #ff0080);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: hexFloat 8s ease-in-out infinite;
+        }
+
+        .hexagon:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .hexagon:nth-child(2) {
+            top: 20%;
+            left: 15%;
+            animation-delay: 1s;
+        }
+
+        .hexagon:nth-child(3) {
+            top: 30%;
+            left: 25%;
+            animation-delay: 2s;
+        }
+
+        .hexagon:nth-child(4) {
+            top: 40%;
+            left: 35%;
+            animation-delay: 3s;
+        }
+
+        .hexagon:nth-child(5) {
+            top: 50%;
+            left: 45%;
+            animation-delay: 4s;
+        }
+
+        .hexagon:nth-child(6) {
+            top: 60%;
+            left: 55%;
+            animation-delay: 5s;
+        }
+
+        .hexagon:nth-child(7) {
+            top: 70%;
+            left: 65%;
+            animation-delay: 6s;
+        }
+
+        .hexagon:nth-child(8) {
+            top: 80%;
+            left: 75%;
+            animation-delay: 7s;
+        }
+
+        @keyframes hexFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg) scale(1.2);
+                opacity: 0.3;
+            }
+        }
+
+        /* Líneas de circuito animadas */
+        .circuit-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .circuit-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            height: 2px;
+            animation: circuitFlow 4s linear infinite;
+        }
+
+        .circuit-line:nth-child(1) {
+            top: 20%;
+            width: 200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .circuit-line:nth-child(2) {
+            top: 50%;
+            width: 150px;
+            left: -150px;
+            animation-delay: 1s;
+        }
+
+        .circuit-line:nth-child(3) {
+            top: 80%;
+            width: 180px;
+            left: -180px;
+            animation-delay: 2s;
+        }
+
+        @keyframes circuitFlow {
+            0% {
+                left: -200px;
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                left: 100vw;
+                opacity: 0;
+            }
+        }
+
+        /* Contenedor principal */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Header futurista */
+        .cyber-header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 0 0 20px 20px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .cyber-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            animation: headerScan 3s ease-in-out infinite;
+        }
+
+        @keyframes headerScan {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .cyber-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .cyber-subtitle {
+            font-size: 1.2rem;
+            color: rgba(0, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 500;
+        }
+
+        /* Panel izquierdo - Usuario */
+        .user-panel {
+            background: linear-gradient(145deg, rgba(0, 255, 255, 0.05), rgba(255, 0, 128, 0.05));
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .user-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.05), transparent);
+            animation: panelGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes panelGlow {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ffff, #ff0080);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 2;
+            animation: avatarPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes avatarPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+            }
+        }
+
+        .user-info {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            color: #00ffff;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .user-status {
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ff00;
+            animation: statusBlink 1.5s ease-in-out infinite;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        @keyframes statusBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .system-stats {
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            color: #00ffff;
+            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .stat-value.error {
+            color: #ff4757;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+        }
+
+        .stat-value.warning {
+            color: #ffa502;
+            text-shadow: 0 0 10px rgba(255, 165, 2, 0.3);
+        }
+
+        /* Panel central - Botón principal */
+        .control-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: slideInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Círculos de energía */
+        .energy-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .energy-ring {
+            position: absolute;
+            border: 2px solid;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.3;
+        }
+
+        .energy-ring:nth-child(1) {
+            width: 250px;
+            height: 250px;
+            border-color: #00ffff;
+            animation: ringRotate 8s linear infinite;
+        }
+
+        .energy-ring:nth-child(2) {
+            width: 350px;
+            height: 350px;
+            border-color: #ff0080;
+            animation: ringRotate 12s linear infinite reverse;
+        }
+
+        .energy-ring:nth-child(3) {
+            width: 450px;
+            height: 450px;
+            border-color: #ffff00;
+            animation: ringRotate 16s linear infinite;
+        }
+
+        @keyframes ringRotate {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        /* Botón principal para abrir puerta */
+        .nexus-button {
+            width: 200px;
+            height: 200px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 100;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(20px);
+        }
+
+        .nexus-button::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            border-radius: 50%;
+            z-index: -1;
+            animation: borderFlow 3s ease-in-out infinite;
+        }
+
+        @keyframes borderFlow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .nexus-button:hover {
+            transform: scale(1.1);
+            box-shadow:
+                0 0 50px rgba(0, 255, 255, 0.5),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .nexus-button:active {
+            transform: scale(1.05);
+        }
+
+        .nexus-button.processing {
+            animation: nexusProcessing 1s ease-in-out infinite;
+        }
+
+        @keyframes nexusProcessing {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: hue-rotate(0deg);
+            }
+
+            50% {
+                transform: scale(1.05);
+                filter: hue-rotate(90deg);
+            }
+        }
+
+        .nexus-button.success {
+            animation: nexusSuccess 2s ease-in-out;
+            background: linear-gradient(45deg, rgba(0, 255, 0, 0.3), rgba(0, 255, 255, 0.2));
+        }
+
+        @keyframes nexusSuccess {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.2);
+                box-shadow: 0 0 100px #00ff00;
+            }
+
+            50% {
+                transform: scale(0.9);
+            }
+
+            75% {
+                transform: scale(1.1);
+            }
+        }
+
+        .nexus-button.error {
+            animation: nexusError 0.5s ease-in-out;
+            background: linear-gradient(45deg, rgba(255, 0, 0, 0.3), rgba(255, 0, 128, 0.2));
+        }
+
+        @keyframes nexusError {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .button-icon {
+            font-size: 4rem;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+
+        .button-text {
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            line-height: 1.2;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Panel derecho - Controles */
+        .controls-panel {
+            background: linear-gradient(145deg, rgba(255, 0, 128, 0.05), rgba(0, 255, 255, 0.05));
+            border: 1px solid rgba(255, 0, 128, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            animation: slideInRight 1s ease-out 0.6s both;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .controls-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 128, 0.05), transparent);
+            animation: panelGlow 4s ease-in-out infinite 2s;
+        }
+
+        .panel-title {
+            color: #ff0080;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255, 0, 128, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .control-grid {
+            display: grid;
+            gap: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            border-color: rgba(0, 255, 255, 0.5);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .control-icon {
+            font-size: 1.5rem;
+            width: 30px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 128, 0.2));
+            border-color: rgba(255, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(45deg, rgba(255, 0, 0, 0.3), rgba(255, 0, 128, 0.3));
+            border-color: rgba(255, 0, 0, 0.7);
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4);
+        }
+
+        /* Footer */
+        .cyber-footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, rgba(0, 0, 0, 0.9), rgba(0, 20, 40, 0.9));
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 20px 25px;
+            color: #ffffff;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: all 0.5s ease;
+            backdrop-filter: blur(20px);
+            max-width: 350px;
+            font-weight: 500;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-color: rgba(0, 255, 0, 0.7);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .notification.error {
+            border-color: rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+
+        .notification.info {
+            border-color: rgba(0, 255, 255, 0.7);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        /* Loading ring */
+        .loading-nexus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            border: 3px solid transparent;
+            border-top: 3px solid #00ffff;
+            border-right: 3px solid #ff0080;
+            border-radius: 50%;
+            animation: loadingSpin 1s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 99;
+        }
+
+        .loading-nexus.active {
+            opacity: 1;
+        }
+
+        @keyframes loadingSpin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto auto;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .user-panel,
+            .controls-panel {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cyber-title {
+                font-size: 2rem;
+            }
+
+            .nexus-button {
+                width: 160px;
+                height: 160px;
+            }
+
+            .button-icon {
+                font-size: 3rem;
+            }
+
+            .energy-ring:nth-child(1) {
+                width: 200px;
+                height: 200px;
+            }
+
+            .energy-ring:nth-child(2) {
+                width: 280px;
+                height: 280px;
+            }
+
+            .energy-ring:nth-child(3) {
+                width: 360px;
+                height: 360px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cyber-title {
+                font-size: 1.5rem;
+            }
+
+            .nexus-button {
+                width: 140px;
+                height: 140px;
+            }
+
+            .button-icon {
+                font-size: 2.5rem;
+            }
+
+            .notification {
+                right: 15px;
+                left: 15px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fondo cyberpunk -->
+    <div class="cyber-background"></div>
+
+    <!-- Grid de hexágonos -->
+    <div class="hex-grid">
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+    </div>
+
+    <!-- Líneas de circuito -->
+    <div class="circuit-lines">
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+    </div>
+
+    <div class="main-container">
+        <!-- Header cyberpunk -->
+        <header class="cyber-header">
+            <h1 class="cyber-title">ESP32 NEXUS</h1>
+            <p class="cyber-subtitle">INTERFAZ DE CENTRO DE CONTROL</p>
+        </header>
+
+        <!-- Panel izquierdo - Usuario -->
+        <div class="user-panel">
+            <div class="user-avatar" id="userAvatar" th:text="${usuario.user_name.substring(0,1).toUpperCase()}">U</div>
+            <div class="user-info">
+                <div class="user-name" id="userName" th:text="${usuario.user_name}">Usuario</div>
+                <div class="user-status">
+                    <div class="status-indicator"></div>
+                    <span>Sistema Activo</span>
+                </div>
+            </div>
+
+            <div class="system-stats">
+                <div class="stat-item">
+                    <span class="stat-label">ESP32 Status</span>
+                    <span class="stat-value" id="esp32Status">VERIFICANDO...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Network</span>
+                    <span class="stat-value" id="networkStatus">ONLINE</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Estado de la Puerta</span>
+                    <span class="stat-value" id="doorStatus">SECURED</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Última Acción</span>
+                    <span class="stat-value" id="lastAction">--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel central - Botón principal -->
+        <div class="control-center">
+            <div class="energy-rings">
+                <div class="energy-ring"></div>
+                <div class="energy-ring"></div>
+                <div class="energy-ring"></div>
+            </div>
+
+            <div class="loading-nexus" id="loadingRing"></div>
+
+            <button class="nexus-button" id="doorButton" onclick="openDoor()">
+                <div class="button-icon">🚪</div>
+                <div class="button-text">ABRIR<br>PUERTA</div>
+            </button>
+        </div>
+
+        <!-- Panel derecho - Controles -->
+        <div class="controls-panel">
+            <h3 class="panel-title">Controles del Sistema</h3>
+            <div class="control-grid">
+                <button class="control-btn" onclick="checkStatus()">
+                    <span class="control-icon">📡</span>
+                    <span>Estado del Sistema</span>
+                </button>
+                <button class="control-btn" onclick="testConnection()">
+                    <span class="control-icon">🧪</span>
+                    <span>Test de Conexión</span>
+                </button>
+                <button class="control-btn" onclick="showSystemInfo()">
+                    <span class="control-icon">ℹ️</span>
+                    <span>Información del Sistema</span>
+                </button>
+                <button class="control-btn" onclick="emergencyProtocol()">
+                    <span class="control-icon">🛑</span>
+                    <span>Parada de Emergencia</span>
+                </button>
+
+                <form th:action="@{/control/logout}" method="post">
+                    <button type="submit" class="control-btn logout-btn">
+                        <span class="control-icon">🚪</span>
+                        <span>Desconectar</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="cyber-footer">
+            <p>ESP32 NEXUS v2.0 | Protocolo de Seguridad Cuántica Activo | Interfaz Neural en Línea</p>
+        </footer>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification">
+        <div id="notificationText"></div>
+    </div>
+
+    <!-- Variables de Thymeleaf para JavaScript -->
+    <script th:inline="javascript">
+        // Variables del servidor
+        var currentUser = /*[[${usuario.user_name}]]*/ 'Usuario';
+        var userToken = /*[[${token}]]*/ '';
+        var userId = /*[[${usuario.idUsuario}]]*/ 0;
+        var userRole = /*[[${usuario.rol?.nombre ?: 'USUARIO'}]]*/ 'USUARIO';
+    </script>
+
+    <script>
+        // Variables globales
+        let isProcessing = false;
+        let systemOnline = true;
+
+        // Inicializar la interfaz
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeNexus();
+            startSystemMonitoring();
+
+            // Mensaje de bienvenida cyberpunk
+            setTimeout(() => {
+                showNotification(`🔥 NEXUS ACTIVATED | Bienvenido ${currentUser} | Todos los sistemas en línea`, 'success');
+            }, 1000);
+
+            setTimeout(() => {
+                showNotification('⚡ Enlace neural establecido | Presiona ESPACIO para activar el protocolo de puerta', 'info');
+            }, 4000);
+        });
+
+        // Inicializar sistema NEXUS
+        function initializeNexus() {
+            const userNameElement = document.getElementById('userName');
+            const userAvatarElement = document.getElementById('userAvatar');
+
+            if (userNameElement && currentUser) {
+                userNameElement.textContent = currentUser.toUpperCase();
+            }
+            if (userAvatarElement && currentUser) {
+                userAvatarElement.textContent = currentUser.charAt(0).toUpperCase();
+            }
+
+            // Iniciar verificación de estado
+            setTimeout(checkSystemStatus, 2000);
+        }
+
+        // Monitoreo continuo del sistema
+        function startSystemMonitoring() {
+            setInterval(checkSystemStatus, 30000);
+            setInterval(updateSystemTime, 1000);
+        }
+
+        // Función principal para abrir la puerta
+        async function openDoor() {
+            if (isProcessing) {
+                showNotification('⚠️ NEXUS OCUPADO | Proceso ya en ejecución | Espere...', 'info');
+                return;
+            }
+
+            isProcessing = true;
+            const button = document.getElementById('doorButton');
+            const loadingRing = document.getElementById('loadingRing');
+
+            // Activar modo procesamiento
+            button.classList.add('processing');
+            loadingRing.classList.add('active');
+
+            // Cambiar estado visual
+            button.querySelector('.button-text').innerHTML = 'PROCESSING<br>⚡';
+            button.querySelector('.button-icon').textContent = '⚡';
+
+            try {
+                showNotification('🚀 NEXUS PROTOCOL | Transmitting to ESP32 | Stand by...', 'info');
+
+                // Llamada a la API
+                const response = await fetch('/api/esp32/abrir-puerta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.text();
+
+                    // Animación de éxito
+                    button.classList.remove('processing');
+                    button.classList.add('success');
+                    button.querySelector('.button-icon').textContent = '✅';
+                    button.querySelector('.button-text').innerHTML = 'ACCESS<br>GRANTED';
+
+                    // Actualizar estados del sistema
+                    const doorStatusElement = document.getElementById('doorStatus');
+                    doorStatusElement.textContent = 'UNLOCKED';
+                    doorStatusElement.className = 'stat-value warning';
+                    updateLastAction();
+
+                    showNotification('🎉 ACCESS GRANTED | Door protocol executed | ESP32 responded successfully', 'success');
+
+                } else if (response.status === 401) {
+                    throw new Error('SECURITY BREACH | Session expired | Re-authentication required');
+                } else {
+                    const errorText = await response.text().catch(() => 'Communication failure');
+                    throw new Error(`NEXUS ERROR | ${errorText}`);
+                }
+
+            } catch (error) {
+                console.error('NEXUS ERROR:', error);
+
+                // Animación de error
+                button.classList.remove('processing');
+                button.classList.add('error');
+                button.querySelector('.button-icon').textContent = '❌';
+                button.querySelector('.button-text').innerHTML = 'ACCESS<br>DENIED';
+
+                // Actualizar estado del ESP32
+                const esp32StatusElement = document.getElementById('esp32Status');
+                esp32StatusElement.textContent = 'OFFLINE';
+                esp32StatusElement.className = 'stat-value error';
+
+                if (error.message.includes('SECURITY BREACH')) {
+                    showNotification('🔒 ' + error.message, 'error');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 3000);
+                } else {
+                    showNotification('❌ SYSTEM ERROR | ' + error.message, 'error');
+                }
+            } finally {
+                // Restaurar estado después de 3 segundos
+                setTimeout(() => {
+                    resetNexusButton();
+                    loadingRing.classList.remove('active');
+                    isProcessing = false;
+                }, 3000);
+            }
+        }
+
+        // Restaurar botón al estado original
+        function resetNexusButton() {
+            const button = document.getElementById('doorButton');
+            button.classList.remove('processing', 'success', 'error');
+            button.querySelector('.button-icon').textContent = '🚪';
+            button.querySelector('.button-text').innerHTML = 'OPEN<br>DOOR';
+
+            // Restaurar estado de la puerta después de 15 segundos
+            setTimeout(() => {
+                const doorStatusElement = document.getElementById('doorStatus');
+                doorStatusElement.textContent = 'SECURED';
+                doorStatusElement.className = 'stat-value';
+            }, 15000);
+        }
+
+        // Verificar estado del sistema
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/control/api/system/status');
+                if (response.ok) {
+                    const status = await response.json();
+
+                    // Actualizar estado del ESP32
+                    const esp32StatusElement = document.getElementById('esp32Status');
+                    if (status.esp32Connected) {
+                        esp32StatusElement.textContent = 'ONLINE';
+                        esp32StatusElement.className = 'stat-value';
+                        systemOnline = true;
+                    } else {
+                        esp32StatusElement.textContent = 'OFFLINE';
+                        esp32StatusElement.className = 'stat-value error';
+                        systemOnline = false;
+                    }
+
+                    // Actualizar estado de red
+                    const networkStatusElement = document.getElementById('networkStatus');
+                    networkStatusElement.textContent = status.networkStatus === 'WiFi Activo' ? 'ONLINE' : 'OFFLINE';
+
+                } else if (response.status === 401) {
+                    showNotification('🔒 SECURITY BREACH | Session expired | Redirecting...', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    throw new Error('System status check failed');
+                }
+            } catch (error) {
+                console.error('System check error:', error);
+                const esp32StatusElement = document.getElementById('esp32Status');
+                esp32StatusElement.textContent = 'ERROR';
+                esp32StatusElement.className = 'stat-value error';
+                systemOnline = false;
+            }
+        }
+
+        // Verificar estado manualmente
+        async function checkStatus() {
+            showNotification('🔍 SYSTEM SCAN | Probing ESP32 neural link | Please wait...', 'info');
+
+            try {
+                const response = await fetch('/api/esp32/estado');
+                if (response.ok) {
+                    const status = await response.text();
+                    const esp32StatusElement = document.getElementById('esp32Status');
+                    esp32StatusElement.textContent = 'ONLINE';
+                    esp32StatusElement.className = 'stat-value';
+                    showNotification('✅ NEURAL LINK ACTIVE | ESP32 responding | All systems operational', 'success');
+                } else if (response.status === 401) {
+                    showNotification('🔒 SECURITY BREACH | Session expired', 'error');
+                    setTimeout(() => window.location.href = '/login', 2000);
+                } else {
+                    throw new Error('ESP32 not responding');
+                }
+            } catch (error) {
+                const esp32StatusElement = document.getElementById('esp32Status');
+                esp32StatusElement.textContent = 'OFFLINE';
+                esp32StatusElement.className = 'stat-value error';
+                showNotification('⚠️ NEURAL LINK DOWN | ESP32 not responding | Check connections', 'error');
+            }
+        }
+
+        // Test de conexión cyberpunk
+        async function testConnection() {
+            showNotification('🧪 NEXUS PROBE | Initiating connection test | Quantum handshake...', 'info');
+
+            try {
+                const response = await fetch('/api/esp32/test-conexion', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    showNotification('🔥 QUANTUM SYNC | Test signal transmitted | Monitor ESP32 status LED', 'success');
+                } else if (response.status === 401) {
+                    showNotification('🔒 SECURITY BREACH | Session expired', 'error');
+                    setTimeout(() => window.location.href = '/login', 2000);
+                } else {
+                    throw new Error('Test protocol failed');
+                }
+            } catch (error) {
+                showNotification('❌ PROBE FAILED | ' + error.message, 'error');
+            }
+        }
+
+        // Protocolo de emergencia
+        async function emergencyProtocol() {
+            if (confirm('⚠️ EMERGENCY PROTOCOL | This will execute system lockdown | Confirm action?')) {
+                showNotification('🛑 EMERGENCY ACTIVATED | Initiating lockdown sequence | Stand by...', 'error');
+
+                try {
+                    const response = await fetch('/api/esp32/comando/EMERGENCY_STOP', {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        showNotification('🛑 LOCKDOWN COMPLETE | Emergency protocol executed | System secured', 'error');
+
+                        // Actualizar estados
+                        document.getElementById('doorStatus').textContent = 'LOCKDOWN';
+                        document.getElementById('doorStatus').className = 'stat-value error';
+
+                    } else {
+                        showNotification('🛑 EMERGENCY SIGNAL SENT | Verification pending | Monitor systems', 'error');
+                    }
+                } catch (error) {
+                    showNotification('🛑 LOCAL LOCKDOWN | Emergency processed | Check manual controls', 'error');
+                }
+            }
+        }
+
+        // Información del sistema cyberpunk
+        function showSystemInfo() {
+            const info = `🔥 NEXUS SYSTEM CORE DUMP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 OPERATOR: ${currentUser.toUpperCase()}
+🆔 NEURAL ID: ${userId}
+🎭 CLEARANCE: ${userRole}
+🕒 SESSION START: ${new Date().toLocaleString()}
+🌐 INTERFACE: ${navigator.userAgent.split(')')[0].split('(')[1] || 'UNKNOWN'}
+📱 RESOLUTION: ${screen.width} x ${screen.height}
+🔗 NEXUS NODE: ${window.location.href}
+💾 MEMORY USAGE: ${window.performance?.memory ? (window.performance.memory.usedJSHeapSize / 1048576).toFixed(2) + ' MB' : 'CLASSIFIED'}
+🔋 SYSTEM STATUS: ${systemOnline ? 'OPERATIONAL' : 'DEGRADED'}`;
+
+            showNotification(info, 'info');
+        }
+
+        // Sistema de notificaciones cyberpunk
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+
+            // Limpiar clases anteriores
+            notification.className = 'notification';
+
+            notificationText.textContent = message;
+            notification.classList.add('show', type);
+
+            // Auto-ocultar después de 6 segundos
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 6000);
+        }
+
+        // Actualizar hora de última acción
+        function updateLastAction() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('lastAction').textContent = timeString;
+        }
+
+        // Actualizar tiempo del sistema
+        function updateSystemTime() {
+            // Mantener el sistema actualizado
+            const now = new Date();
+        }
+
+        // Atajos de teclado cyberpunk
+        document.addEventListener('keydown', function (e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            switch (e.key.toLowerCase()) {
+                case ' ': // Espacio para activar puerta
+                    e.preventDefault();
+                    if (!isProcessing) {
+                        openDoor();
+                    }
+                    break;
+                case 's': // S para estado del sistema
+                    e.preventDefault();
+                    checkStatus();
+                    break;
+                case 't': // T para test
+                    e.preventDefault();
+                    testConnection();
+                    break;
+                case 'i': // I para información
+                    e.preventDefault();
+                    showSystemInfo();
+                    break;
+                case 'escape': // Escape para emergencia
+                    e.preventDefault();
+                    emergencyProtocol();
+                    break;
+            }
+        });
+
+        // Efectos visuales cyberpunk
+        document.addEventListener('mousemove', function (e) {
+            const cursor = document.querySelector('.cyber-cursor');
+            if (!cursor) {
+                const newCursor = document.createElement('div');
+                newCursor.className = 'cyber-cursor';
+                newCursor.style.cssText = `
+                    position: fixed;
+                    width: 20px;
+                    height: 20px;
+                    background: radial-gradient(circle, rgba(0,255,255,0.4), transparent);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    transition: transform 0.1s ease;
+                    mix-blend-mode: screen;
+                `;
+                document.body.appendChild(newCursor);
+            }
+
+            const cursorElement = document.querySelector('.cyber-cursor');
+            if (cursorElement) {
+                cursorElement.style.left = e.clientX - 10 + 'px';
+                cursorElement.style.top = e.clientY - 10 + 'px';
+            }
+        });
+
+        // Detección de conexión de red
+        window.addEventListener('online', () => {
+            showNotification('🌐 NEURAL LINK RESTORED | Network connection re-established', 'success');
+            document.getElementById('networkStatus').textContent = 'ONLINE';
+            document.getElementById('networkStatus').className = 'stat-value';
+            setTimeout(checkSystemStatus, 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            showNotification('⚠️ NEURAL LINK DOWN | Network connection lost', 'error');
+            document.getElementById('networkStatus').textContent = 'OFFLINE';
+            document.getElementById('networkStatus').className = 'stat-value error';
+        });
+
+        // Prevenir cierre durante operaciones críticas
+        window.addEventListener('beforeunload', function (e) {
+            if (isProcessing) {
+                e.preventDefault();
+                e.returnValue = 'NEXUS WARNING: Critical operation in progress. Confirm exit?';
+            }
+        });
+
+        // Manejo global de errores
+        window.addEventListener('error', function (e) {
+            console.error('NEXUS SYSTEM ERROR:', e.error);
+            showNotification('❌ SYSTEM ANOMALY | Unexpected error detected', 'error');
+        });
+
+        // Monitor de rendimiento del sistema
+        setInterval(() => {
+            if (window.performance && window.performance.memory) {
+                const memory = window.performance.memory;
+                const usedMemory = (memory.usedJSHeapSize / 1048576).toFixed(2);
+
+                if (usedMemory > 100) {
+                    console.warn(`NEXUS MEMORY WARNING: ${usedMemory} MB in use`);
+                }
+            }
+        }, 60000);
+
+        // Easter egg: secuencia de konami cyberpunk
+        let konamiSequence = [];
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+
+        document.addEventListener('keydown', function (e) {
+            konamiSequence.push(e.code);
+            if (konamiSequence.length > konamiCode.length) {
+                konamiSequence.shift();
+            }
+
+            if (JSON.stringify(konamiSequence) === JSON.stringify(konamiCode)) {
+                activateNexusOverdrive();
+                konamiSequence = [];
+            }
+        });
+
+        function activateNexusOverdrive() {
+            document.body.style.filter = 'hue-rotate(120deg) saturate(2)';
+            showNotification('🔥 NEXUS OVERDRIVE ACTIVATED | Neural boost engaged | Reality matrix enhanced', 'success');
+
+            // Crear efecto matrix
+            createCyberMatrix();
+        }
+
+        function createCyberMatrix() {
+            const canvas = document.createElement('canvas');
+            canvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                opacity: 0.2;
+            `;
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const matrix = '01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const drops = [];
+
+            for (let x = 0; x < canvas.width / 10; x++) {
+                drops[x] = 1;
+            }
+
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#00ffff';
+                ctx.font = '10px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrix[Math.floor(Math.random() * matrix.length)];
+                    ctx.fillText(text, i * 10, drops[i] * 10);
+
+                    if (drops[i] * 10 > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            setInterval(drawMatrix, 35);
+        }
+    </script>
+</body>
+
+</html>
