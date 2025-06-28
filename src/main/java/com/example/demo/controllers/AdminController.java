@@ -9,9 +9,10 @@ import com.example.demo.models.entity.Usuario;
 import com.example.demo.models.servicio.AutenticacionService;
 import com.example.demo.models.dao.UsuarioDao;
 
+import java.util.ArrayList;
+import java.util.List;
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.time.LocalDate;
@@ -25,35 +26,79 @@ public class AdminController {
     @Autowired
     private UsuarioDao usuarioDao;
 
-    /**
-     * Mostrar dashboard con lógica administrativa
-     */
     @GetMapping("/dashboard")
     public String mostrarDashboard(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         String userToken = (String) session.getAttribute("userToken");
-        
+
         if (userName == null || userToken == null) {
             return "redirect:/login";
         }
-        
+
         Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
         if (usuarioOpt.isEmpty()) {
             session.invalidate();
             return "redirect:/login";
         }
-        
+
         Usuario usuario = usuarioOpt.get();
         model.addAttribute("usuario", usuario);
         model.addAttribute("token", userToken);
-        
-        // Verificar si es administrador
+
         boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
         model.addAttribute("isAdmin", isAdmin);
-        
-        System.out.println("✅ Dashboard cargado para: " + userName + " (Admin: " + isAdmin + ")");
-        
-        // Usar la nueva vista administrativa
+
+        if (isAdmin) {
+            try {
+                // Obtener usuarios con eager fetching para evitar LazyInitializationException
+                List<Usuario> listaUsuarios = usuarioDao.findAll();
+                
+                // Forzar la carga de las relaciones para evitar lazy loading issues
+                for (Usuario u : listaUsuarios) {
+                    // Acceder a las propiedades para forzar la carga
+                    if (u.getRol() != null) {
+                        u.getRol().getNombre(); // Forzar carga del rol
+                    }
+                    if (u.getPersona() != null) {
+                        u.getPersona().getNombre(); // Forzar carga de persona
+                    }
+                }
+                
+                model.addAttribute("usuarios", listaUsuarios);
+
+                // Calcular estadísticas
+                long totalUsuarios = listaUsuarios.size();
+                long usuariosActivos = listaUsuarios.stream()
+                        .filter(u -> "ACTIVO".equals(u.getEstado()))
+                        .count();
+                long usuariosConToken = listaUsuarios.stream()
+                        .filter(u -> u.getToken() != null)
+                        .count();
+
+                model.addAttribute("totalUsuarios", totalUsuarios);
+                model.addAttribute("usuariosActivos", usuariosActivos);
+                model.addAttribute("usuariosConectados", usuariosConToken);
+
+                System.out.println("✅ Dashboard administrativo cargado para: " + userName);
+                System.out.println("📊 Total usuarios: " + totalUsuarios +
+                        ", Activos: " + usuariosActivos +
+                        ", Conectados: " + usuariosConToken);
+                System.out.println("📋 Lista de usuarios:");
+                for (Usuario u : listaUsuarios) {
+                    System.out.println("  - " + u.getUser_name() + " | Estado: " + u.getEstado() + 
+                                     " | Rol: " + (u.getRol() != null ? u.getRol().getNombre() : "NULL"));
+                }
+
+            } catch (Exception e) {
+                System.out.println("❌ Error cargando usuarios: " + e.getMessage());
+                e.printStackTrace();
+                model.addAttribute("usuarios", new ArrayList<>());
+                model.addAttribute("error", "Error al cargar la lista de usuarios: " + e.getMessage());
+            }
+        } else {
+            model.addAttribute("usuarios", new ArrayList<>());
+        }
+
         return "admin-dashboard";
     }
 

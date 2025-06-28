@@ -9,7 +9,9 @@ import com.example.demo.models.entity.Usuario;
 import com.example.demo.models.entity.Persona;
 import com.example.demo.models.entity.Rol;
 import com.example.demo.models.servicio.AutenticacionService;
+import com.example.demo.models.servicio.PasswordService;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,10 +27,46 @@ public class AutenticacionServiceImpl implements AutenticacionService {
     @Autowired
     private RolDao rolDao;
     
+    @Autowired
+    private PasswordService passwordService; // ✅ INYECTAR SERVICIO DE ENCRIPTACIÓN
+    
     @Override
     public Optional<Usuario> autenticar(String userName, String clave) {
-        System.out.println("🔍 Intentando autenticar usuario: " + userName);
+        System.out.println("🔍 Intentando autenticar usuario (método tradicional): " + userName);
         return usuarioDao.findByUserNameAndClave(userName, clave);
+    }
+    
+    /**
+     * NUEVO MÉTODO: Autenticación con contraseña encriptada
+     */
+    @Override
+    public Optional<Usuario> autenticarConEncriptacion(String userName, String claveTextoPlano) {
+        System.out.println("🔐 Autenticación con encriptación para: " + userName);
+        
+        try {
+            // Buscar usuario por nombre
+            Optional<Usuario> usuarioOpt = usuarioDao.findByUserName(userName);
+            
+            if (usuarioOpt.isPresent()) {
+                Usuario usuario = usuarioOpt.get();
+                String claveEncriptadaDB = usuario.getClave();
+                
+                // Verificar si la contraseña coincide
+                if (passwordService.verificarClave(claveTextoPlano, claveEncriptadaDB)) {
+                    System.out.println("✅ Contraseña verificada correctamente para: " + userName);
+                    return Optional.of(usuario);
+                } else {
+                    System.out.println("❌ Contraseña incorrecta para: " + userName);
+                }
+            } else {
+                System.out.println("❌ Usuario no encontrado: " + userName);
+            }
+            
+        } catch (Exception e) {
+            System.out.println("❌ Error en autenticación con encriptación: " + e.getMessage());
+        }
+        
+        return Optional.empty();
     }
     
     @Override
@@ -43,7 +81,7 @@ public class AutenticacionServiceImpl implements AutenticacionService {
         // Crear nuevo usuario SIN persona (registro rápido)
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setUser_name(userName);
-        nuevoUsuario.setClave(clave);
+        nuevoUsuario.setClave(clave); // ✅ LA CLAVE YA VIENE ENCRIPTADA DESDE EL CONTROLADOR
         nuevoUsuario.setEstado("ACTIVO");
         nuevoUsuario.setFechaRegistro(LocalDate.now());
         
@@ -72,7 +110,7 @@ public class AutenticacionServiceImpl implements AutenticacionService {
     }
     
     @Override
-    public Usuario registrarUsuarioCompleto(String userName, String clave, 
+    public Usuario registrarUsuarioCompleto(String userName, String claveTextoPlano, 
                                           String nombre, String paterno, String materno, String ci) {
         System.out.println("📝 Iniciando registro completo de usuario: " + userName);
         
@@ -85,6 +123,10 @@ public class AutenticacionServiceImpl implements AutenticacionService {
         }
         
         try {
+            // 🔐 ENCRIPTAR CONTRASEÑA PARA REGISTRO COMPLETO
+            String claveEncriptada = passwordService.encriptarClave(claveTextoPlano);
+            System.out.println("🔒 Contraseña encriptada para registro completo: " + userName);
+            
             // 1. Crear y guardar persona
             Persona nuevaPersona = new Persona();
             nuevaPersona.setNombre(nombre);
@@ -96,10 +138,10 @@ public class AutenticacionServiceImpl implements AutenticacionService {
             Persona personaGuardada = personaDao.save(nuevaPersona);
             System.out.println("✅ Persona guardada con ID: " + personaGuardada.getIdPersona());
             
-            // 2. Crear usuario con la persona
+            // 2. Crear usuario con la persona y contraseña encriptada
             Usuario nuevoUsuario = new Usuario();
             nuevoUsuario.setUser_name(userName);
-            nuevoUsuario.setClave(clave);
+            nuevoUsuario.setClave(claveEncriptada); // ✅ CONTRASEÑA ENCRIPTADA
             nuevoUsuario.setEstado("ACTIVO");
             nuevoUsuario.setFechaRegistro(LocalDate.now());
             nuevoUsuario.setPersona(personaGuardada);
@@ -126,29 +168,29 @@ public class AutenticacionServiceImpl implements AutenticacionService {
     
     @Override
     public Rol obtenerRolPorDefecto() {
-    try {
-        // Buscar rol "USUARIO" o crear uno por defecto
-        Optional<Rol> rolOpt = rolDao.findByNombre("USUARIO");
-        
-        if (rolOpt.isPresent()) {
-            System.out.println("✅ Rol USUARIO encontrado con ID: " + rolOpt.get().getIdRol());
-            return rolOpt.get();
-        } else {
-            // Crear rol por defecto si no existe
-            System.out.println("📝 Creando rol USUARIO por defecto...");
-            Rol rolDefecto = new Rol();
-            rolDefecto.setNombre("USUARIO");
-            rolDefecto.setEstado("ACTIVO");
-            Rol rolGuardado = rolDao.save(rolDefecto);
-            System.out.println("✅ Rol USUARIO creado con ID: " + rolGuardado.getIdRol());
-            return rolGuardado;
+        try {
+            // Buscar rol "USUARIO" o crear uno por defecto
+            Optional<Rol> rolOpt = rolDao.findByNombre("USUARIO");
+            
+            if (rolOpt.isPresent()) {
+                System.out.println("✅ Rol USUARIO encontrado con ID: " + rolOpt.get().getIdRol());
+                return rolOpt.get();
+            } else {
+                // Crear rol por defecto si no existe
+                System.out.println("📝 Creando rol USUARIO por defecto...");
+                Rol rolDefecto = new Rol();
+                rolDefecto.setNombre("USUARIO");
+                rolDefecto.setEstado("ACTIVO");
+                Rol rolGuardado = rolDao.save(rolDefecto);
+                System.out.println("✅ Rol USUARIO creado con ID: " + rolGuardado.getIdRol());
+                return rolGuardado;
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Error al obtener/crear rol por defecto: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al gestionar rol por defecto: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.out.println("❌ Error al obtener/crear rol por defecto: " + e.getMessage());
-        e.printStackTrace();
-        throw new RuntimeException("Error al gestionar rol por defecto: " + e.getMessage());
     }
-}
     
     @Override
     public Optional<Rol> obtenerRolPorNombre(String nombre) {
@@ -192,5 +234,21 @@ public class AutenticacionServiceImpl implements AutenticacionService {
         boolean existe = usuarioDao.findByUserName(userName).isPresent();
         System.out.println("🔍 ¿Usuario " + userName + " existe? " + existe);
         return existe;
+    }
+    
+    // ========== NUEVOS MÉTODOS PARA MIGRACIÓN ==========
+    
+    @Override
+    public List<Usuario> obtenerTodosLosUsuarios() {
+        System.out.println("📋 Obteniendo todos los usuarios del sistema");
+        return usuarioDao.findAll();
+    }
+    
+    @Override
+    public void actualizarUsuario(Usuario usuario) {
+        System.out.println("🔄 Actualizando usuario: " + usuario.getUser_name());
+        usuario.setFechaModificacion(LocalDate.now());
+        usuarioDao.save(usuario);
+        System.out.println("✅ Usuario actualizado exitosamente");
     }
 }
