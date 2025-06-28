@@ -413,11 +413,13 @@
                     placeholder="🔍 Buscar usuarios por nombre, estado, rol...">
                 <button class="btn btn-success" onclick="crearNuevoUsuario()">👤 Crear Usuario</button>
                 <button class="btn btn-primary" onclick="refreshData()">🔄 Actualizar</button>
+                <a href="/logs" class="btn btn-primary" style="text-decoration: none;">📜 Ver Logs</a>
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <input type="hidden" name="user_name" th:value="${usuario.user_name}">
                     <button type="submit" class="btn btn-danger">🚪 Cerrar Sesión</button>
                 </form>
             </div>
+
         </div>
 
         <!-- Tabla de Usuarios -->
