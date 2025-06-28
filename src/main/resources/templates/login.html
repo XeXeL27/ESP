@@ -421,44 +421,36 @@
                 Iniciar Sesión
             </button>
         </form>
+        <script>
+            // Agregar efecto de escritura al título
+            document.addEventListener('DOMContentLoaded', function () {
+                const title = document.querySelector('.logo h1');
+                const text = title.innerText;
+                title.innerText = '';
 
-        <div class="register-link">
-            <a th:href="@{/registro}">
-                ✨ ¿No tienes cuenta? Regístrate aquí
-            </a>
-        </div>
-    </div>
+                let i = 0;
+                const typeWriter = () => {
+                    if (i < text.length) {
+                        title.innerText += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 100);
+                    }
+                };
 
-    <script>
-        // Agregar efecto de escritura al título
-        document.addEventListener('DOMContentLoaded', function () {
-            const title = document.querySelector('.logo h1');
-            const text = title.innerText;
-            title.innerText = '';
-
-            let i = 0;
-            const typeWriter = () => {
-                if (i < text.length) {
-                    title.innerText += text.charAt(i);
-                    i++;
-                    setTimeout(typeWriter, 100);
-                }
-            };
-
-            setTimeout(typeWriter, 500);
-        });
-
-        // Efecto de enfoque en inputs
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', function () {
-                this.parentElement.style.transform = 'scale(1.02)';
+                setTimeout(typeWriter, 500);
             });
 
-            input.addEventListener('blur', function () {
-                this.parentElement.style.transform = 'scale(1)';
+            // Efecto de enfoque en inputs
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+
+                input.addEventListener('blur', function () {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
             });
-        });
-    </script>
+        </script>
 </body>
 
 </html>

@@ -411,6 +411,7 @@
             <div class="search-container">
                 <input type="text" class="search-input" id="searchInput"
                     placeholder="🔍 Buscar usuarios por nombre, estado, rol...">
+                <button class="btn btn-success" onclick="crearNuevoUsuario()">👤 Crear Usuario</button>
                 <button class="btn btn-primary" onclick="refreshData()">🔄 Actualizar</button>
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <input type="hidden" name="user_name" th:value="${usuario.user_name}">
@@ -625,12 +626,12 @@
             }
         }
 
-        // Ver detalles de usuario
-        function viewUser(userId) {
-            showNotification(`👁️ Viendo detalles del usuario ID: ${userId}`, 'info');
+        // Crear nuevo usuario
+        function crearNuevoUsuario() {
+            showNotification('🚀 Redirigiendo al formulario de creación de usuario...', 'info');
 
-            // Aquí podrías abrir un modal o redirigir a otra página
-            console.log('Ver usuario:', userId);
+            // Redirigir a la página de creación de usuario
+            window.location.href = '/admin/crear-usuario';
         }
 
         // Activar usuario
@@ -782,22 +783,6 @@
             // e.preventDefault();
             // e.returnValue = '¿Estás seguro de que quieres salir del panel de administración?';
         });
-    </script>
-
-    <!-- DEBUG: Información de usuarios -->
-    <script th:inline="javascript">
-        console.log('🔍 DEBUG - Variables Thymeleaf:');
-        console.log('isAdmin:', /*[[${isAdmin}]]*/ false);
-        console.log('totalUsuarios:', /*[[${totalUsuarios}]]*/ 0);
-        console.log('usuariosActivos:', /*[[${usuariosActivos}]]*/ 0);
-
-        // Verificar si hay usuarios
-        var hasUsers = /*[[${usuarios != null and not #lists.isEmpty(usuarios)}]]*/ false;
-        console.log('hasUsers:', hasUsers);
-
-        // Contar usuarios manualmente
-        var userCount = /*[[${usuarios != null ? usuarios.size() : 0}]]*/ 0;
-        console.log('userCount:', userCount);
     </script>
 </body>
 

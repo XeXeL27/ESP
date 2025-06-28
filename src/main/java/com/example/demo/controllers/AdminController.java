@@ -27,7 +27,8 @@ public class AdminController {
     private UsuarioDao usuarioDao;
 
     @GetMapping("/dashboard")
-    public String mostrarDashboard(Model model, HttpSession session) {
+    public String mostrarDashboard(Model model, HttpSession session, 
+                                 @RequestParam(required = false) String mensaje) {
         String userName = (String) session.getAttribute("userName");
         String userToken = (String) session.getAttribute("userToken");
 
@@ -47,6 +48,11 @@ public class AdminController {
 
         boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
         model.addAttribute("isAdmin", isAdmin);
+
+        // Agregar mensaje si viene de la creación de usuario
+        if (mensaje != null && !mensaje.trim().isEmpty()) {
+            model.addAttribute("mensaje", mensaje);
+        }
 
         if (isAdmin) {
             try {
@@ -100,6 +106,171 @@ public class AdminController {
         }
 
         return "admin-dashboard";
+    }
+
+    /**
+     * Mostrar formulario para crear nuevo usuario
+     */
+    @GetMapping("/admin/crear-usuario")
+    public String mostrarFormularioCrearUsuario(Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        String userToken = (String) session.getAttribute("userToken");
+
+        if (userName == null || userToken == null) {
+            return "redirect:/login";
+        }
+
+        Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
+        if (usuarioOpt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        Usuario usuario = usuarioOpt.get();
+        boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
+        
+        if (!isAdmin) {
+            return "redirect:/dashboard";
+        }
+
+        model.addAttribute("usuario", usuario);
+        System.out.println("📝 Admin " + userName + " accedió al formulario de creación de usuario");
+        
+        return "admin-crear-usuario";
+    }
+
+    /**
+     * Procesar formulario para crear nuevo usuario completo
+     */
+    @PostMapping("/admin/crear-usuario")
+    public String procesarCrearUsuario(@RequestParam String nombre,
+                                     @RequestParam String paterno,
+                                     @RequestParam(required = false) String materno,
+                                     @RequestParam String ci,
+                                     @RequestParam String user_name,
+                                     @RequestParam String clave,
+                                     Model model,
+                                     HttpSession session) {
+        
+        String adminUser = (String) session.getAttribute("userName");
+        String userToken = (String) session.getAttribute("userToken");
+
+        // Verificar autenticación y permisos
+        if (adminUser == null || userToken == null) {
+            return "redirect:/login";
+        }
+
+        Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
+        if (usuarioOpt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        Usuario adminUsuario = usuarioOpt.get();
+        boolean isAdmin = adminUsuario.getRol() != null && "ADMIN".equals(adminUsuario.getRol().getNombre());
+        
+        if (!isAdmin) {
+            return "redirect:/dashboard";
+        }
+
+        model.addAttribute("usuario", adminUsuario);
+
+        try {
+            System.out.println("👥 Admin " + adminUser + " iniciando creación de usuario completo:");
+            System.out.println("  📋 Persona: " + nombre + " " + paterno + " " + (materno != null ? materno : ""));
+            System.out.println("  🆔 CI: " + ci);
+            System.out.println("  👤 Username: " + user_name);
+
+            // Validaciones básicas
+            if (nombre == null || nombre.trim().isEmpty() || 
+                paterno == null || paterno.trim().isEmpty() ||
+                ci == null || ci.trim().isEmpty() ||
+                user_name == null || user_name.trim().isEmpty() ||
+                clave == null || clave.length() < 6) {
+                
+                model.addAttribute("error", "❌ Datos incompletos o inválidos. Verifique todos los campos obligatorios.");
+                return "admin-crear-usuario";
+            }
+
+            // Verificar si ya existe un usuario con ese username
+            if (autenticacionService.existeUsuario(user_name)) {
+                model.addAttribute("error", "❌ Ya existe un usuario con el nombre '" + user_name + "'. Genere credenciales nuevamente.");
+                return "admin-crear-usuario";
+            }
+
+            // Verificar si ya existe una persona con ese CI
+            if (autenticacionService.existePersonaPorCi(ci)) {
+                model.addAttribute("error", "❌ Ya existe una persona registrada con el CI '" + ci + "'.");
+                return "admin-crear-usuario";
+            }
+
+            // Validar formato del CI
+            if (!ci.matches("^[0-9]{7,10}$")) {
+                model.addAttribute("error", "❌ El CI debe tener entre 7 y 10 dígitos numéricos.");
+                return "admin-crear-usuario";
+            }
+
+            // Crear usuario completo (con persona)
+            System.out.println("💾 Creando usuario completo en la base de datos...");
+            
+            Usuario nuevoUsuario = autenticacionService.registrarUsuarioCompleto(
+                user_name, 
+                clave, 
+                nombre.trim(), 
+                paterno.trim(), 
+                materno != null ? materno.trim() : null, 
+                ci.trim()
+            );
+
+            System.out.println("✅ Usuario completo creado exitosamente:");
+            System.out.println("  🆔 ID Usuario: " + nuevoUsuario.getIdUsuario());
+            System.out.println("  👤 Username: " + nuevoUsuario.getUser_name());
+            System.out.println("  📊 Estado: " + nuevoUsuario.getEstado());
+            System.out.println("  🎭 Rol: " + (nuevoUsuario.getRol() != null ? nuevoUsuario.getRol().getNombre() : "NULL"));
+            System.out.println("  👥 Persona ID: " + (nuevoUsuario.getPersona() != null ? nuevoUsuario.getPersona().getIdPersona() : "NULL"));
+            System.out.println("  🔑 Token generado: " + (nuevoUsuario.getToken() != null ? "SÍ" : "NO"));
+
+            // Preparar datos para mostrar en el dashboard
+            String mensajeExito = String.format(
+                "✅ Usuario creado exitosamente!\n" +
+                "👤 Usuario: %s\n" +
+                "👥 Persona: %s %s\n" +
+                "🆔 CI: %s\n" +
+                "🎭 Rol: %s\n" +
+                "📊 Estado: %s",
+                nuevoUsuario.getUser_name(),
+                nombre, paterno,
+                ci,
+                nuevoUsuario.getRol() != null ? nuevoUsuario.getRol().getNombre() : "USUARIO",
+                nuevoUsuario.getEstado()
+            );
+
+            model.addAttribute("mensaje", mensajeExito);
+
+            // Redirigir al dashboard con mensaje de éxito
+            return "redirect:/dashboard?mensaje=" + java.net.URLEncoder.encode(
+                "Usuario '" + nuevoUsuario.getUser_name() + "' creado exitosamente", 
+                "UTF-8"
+            );
+
+        } catch (Exception e) {
+            System.out.println("❌ Error creando usuario completo: " + e.getMessage());
+            e.printStackTrace();
+            
+            String errorMessage = "Error al crear usuario: ";
+            if (e.getMessage().contains("ya existe")) {
+                errorMessage += "Ya existe un registro con estos datos.";
+            } else if (e.getMessage().contains("CI")) {
+                errorMessage += "Problema con el CI proporcionado.";
+            } else if (e.getMessage().contains("rol")) {
+                errorMessage += "Error configurando el rol del usuario.";
+            } else {
+                errorMessage += e.getMessage();
+            }
+            
+            model.addAttribute("error", errorMessage);
+            return "admin-crear-usuario";
+        }
     }
 
     /**

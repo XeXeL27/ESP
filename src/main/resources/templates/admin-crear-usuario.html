@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Usuario - Panel Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .navigation {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input:valid {
+            border-color: #28a745;
+        }
+
+        .form-input.generated {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border-color: #667eea;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .credentials-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .credentials-display {
+            display: none;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .credentials-display.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .credential-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .credential-value {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .submit-section {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #155724;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(253, 126, 20, 0.1));
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #0c5460;
+        }
+
+        .validation-message {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            color: #dc3545;
+        }
+
+        .validation-message.valid {
+            color: #28a745;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .credentials-section {
+                padding: 20px 15px;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>👤 Crear Nuevo Usuario</h1>
+            <p>Registrar persona y generar credenciales automáticamente</p>
+        </div>
+
+        <!-- Navegación -->
+        <div class="navigation">
+            <a href="/dashboard" class="back-btn">
+                ← Volver al Dashboard
+            </a>
+        </div>
+
+        <!-- Mensajes -->
+        <div th:if="${mensaje}" class="alert alert-success" style="margin: 20px;">
+            <span th:text="${mensaje}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-error" style="margin: 20px;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Contenido del formulario -->
+        <div class="form-content">
+            <form id="crearUsuarioForm" th:action="@{/admin/crear-usuario}" method="post">
+
+                <!-- Sección 1: Datos de la Persona -->
+                <div class="form-section">
+                    <h3 class="section-title">📋 Datos de la Persona</h3>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="nombre">Nombre <span class="required">*</span></label>
+                            <input type="text" id="nombre" name="nombre" class="form-input"
+                                placeholder="Ingresa el nombre" required minlength="2">
+                            <div class="validation-message" id="nombreValidation"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="paterno">Apellido Paterno <span
+                                    class="required">*</span></label>
+                            <input type="text" id="paterno" name="paterno" class="form-input"
+                                placeholder="Ingresa el apellido paterno" required minlength="2">
+                            <div class="validation-message" id="paternoValidation"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="materno">Apellido Materno</label>
+                            <input type="text" id="materno" name="materno" class="form-input"
+                                placeholder="Ingresa el apellido materno">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="ci">Carnet de Identidad <span
+                                    class="required">*</span></label>
+                            <input type="text" id="ci" name="ci" class="form-input" placeholder="Ej: 12345678" required
+                                pattern="[0-9]{7,10}">
+                            <div class="validation-message" id="ciValidation"></div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>ℹ️ Información:</strong>
+                        Complete los datos de la persona. Los campos marcados con (*) son obligatorios.
+                        El CI debe tener entre 7 y 10 dígitos.
+                    </div>
+                </div>
+
+                <!-- Sección 2: Credenciales Automáticas -->
+                <div class="form-section">
+                    <h3 class="section-title">🔐 Credenciales de Usuario</h3>
+
+                    <div class="credentials-section">
+                        <button type="button" class="generate-btn" id="generateBtn" onclick="generarCredenciales()">
+                            🎲 Generar Credenciales Automáticamente
+                        </button>
+
+                        <div class="alert alert-info">
+                            <strong>💡 Tip:</strong>
+                            Las credenciales se generarán automáticamente basándose en los datos de la persona.
+                            <br>• <strong>Usuario:</strong> Se creará usando nombre y apellido
+                            <br>• <strong>Contraseña:</strong> Se generará una contraseña segura aleatoria
+                        </div>
+
+                        <div class="credentials-display" id="credentialsDisplay">
+                            <h4 style="margin-bottom: 15px; color: #495057;">📄 Credenciales Generadas:</h4>
+
+                            <div class="credential-item">
+                                <span class="credential-label">👤 Nombre de Usuario:</span>
+                                <span class="credential-value" id="generatedUsername">-</span>
+                            </div>
+
+                            <div class="credential-item">
+                                <span class="credential-label">🔒 Contraseña:</span>
+                                <span class="credential-value" id="generatedPassword">-</span>
+                            </div>
+
+                            <div class="credential-item">
+                                <span class="credential-label">🎭 Rol:</span>
+                                <span class="credential-value">USUARIO</span>
+                            </div>
+
+                            <div class="credential-item">
+                                <span class="credential-label">📊 Estado:</span>
+                                <span class="credential-value">ACTIVO</span>
+                            </div>
+
+                            <div
+                                style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; border: 1px solid #ffeaa7;">
+                                <strong>⚠️ Importante:</strong> Guarde estas credenciales en un lugar seguro.
+                                Una vez creado el usuario, deberá proporcionar estos datos al usuario final.
+                            </div>
+                        </div>
+
+                        <!-- Campos ocultos para enviar las credenciales -->
+                        <input type="hidden" id="user_name" name="user_name">
+                        <input type="hidden" id="clave" name="clave">
+                    </div>
+                </div>
+
+                <!-- Sección 3: Botón de envío -->
+                <div class="submit-section">
+                    <div class="loading" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <p>Creando usuario...</p>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                        ✅ Crear Usuario Completo
+                    </button>
+
+                    <p style="margin-top: 15px; color: #6c757d; font-size: 0.9rem;">
+                        Al hacer clic en "Crear Usuario", se registrará la persona y se creará automáticamente
+                        el usuario con las credenciales generadas.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Variables de Thymeleaf para JavaScript -->
+    <script th:inline="javascript">
+        var currentAdmin = /*[[${usuario.user_name}]]*/ 'admin';
+    </script>
+
+    <script>
+        // Variables globales
+        let credentialsGenerated = false;
+        let formData = {};
+
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('📝 Iniciando formulario de creación de usuario...');
+
+            // Configurar validación en tiempo real
+            setupFormValidation();
+
+            // Mostrar mensaje de bienvenida
+            setTimeout(() => {
+                showNotification(`🛠️ Formulario listo para crear usuarios - Admin: ${currentAdmin}`, 'info');
+            }, 500);
+        });
+
+        // Configurar validación en tiempo real
+        function setupFormValidation() {
+            const nombre = document.getElementById('nombre');
+            const paterno = document.getElementById('paterno');
+            const ci = document.getElementById('ci');
+
+            nombre.addEventListener('input', validateNombre);
+            paterno.addEventListener('input', validatePaterno);
+            ci.addEventListener('input', validateCI);
+
+            // Resetear credenciales cuando cambien los datos
+            [nombre, paterno, ci].forEach(input => {
+                input.addEventListener('input', () => {
+                    if (credentialsGenerated) {
+                        resetCredentials();
+                    }
+                });
+            });
+        }
+
+        // Validaciones individuales
+        function validateNombre() {
+            const nombre = document.getElementById('nombre');
+            const validation = document.getElementById('nombreValidation');
+
+            if (nombre.value.length < 2) {
+                validation.textContent = 'El nombre debe tener al menos 2 caracteres';
+                validation.className = 'validation-message';
+                return false;
+            } else {
+                validation.textContent = '✓ Nombre válido';
+                validation.className = 'validation-message valid';
+                return true;
+            }
+        }
+
+        function validatePaterno() {
+            const paterno = document.getElementById('paterno');
+            const validation = document.getElementById('paternoValidation');
+
+            if (paterno.value.length < 2) {
+                validation.textContent = 'El apellido debe tener al menos 2 caracteres';
+                validation.className = 'validation-message';
+                return false;
+            } else {
+                validation.textContent = '✓ Apellido válido';
+                validation.className = 'validation-message valid';
+                return true;
+            }
+        }
+
+        function validateCI() {
+            const ci = document.getElementById('ci');
+            const validation = document.getElementById('ciValidation');
+            const ciPattern = /^[0-9]{7,10}$/;
+
+            if (!ciPattern.test(ci.value)) {
+                validation.textContent = 'El CI debe tener entre 7 y 10 dígitos';
+                validation.className = 'validation-message';
+                return false;
+            } else {
+                validation.textContent = '✓ CI válido';
+                validation.className = 'validation-message valid';
+                return true;
+            }
+        }
+
+        // Generar credenciales automáticamente
+        function generarCredenciales() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const paterno = document.getElementById('paterno').value.trim();
+            const ci = document.getElementById('ci').value.trim();
+
+            // Validar que los campos requeridos estén completos
+            if (!nombre || !paterno || !ci) {
+                showNotification('⚠️ Complete los campos obligatorios (Nombre, Apellido Paterno, CI) antes de generar credenciales', 'error');
+                return;
+            }
+
+            // Validar que los datos sean válidos
+            if (!validateNombre() || !validatePaterno() || !validateCI()) {
+                showNotification('❌ Corrija los errores en el formulario antes de generar credenciales', 'error');
+                return;
+            }
+
+            showNotification('🎲 Generando credenciales automáticamente...', 'info');
+
+            // Generar nombre de usuario
+            const username = generateUsername(nombre, paterno, ci);
+
+            // Generar contraseña segura
+            const password = generateSecurePassword();
+
+            // Mostrar credenciales generadas
+            document.getElementById('generatedUsername').textContent = username;
+            document.getElementById('generatedPassword').textContent = password;
+
+            // Llenar campos ocultos
+            document.getElementById('user_name').value = username;
+            document.getElementById('clave').value = password;
+
+            // Mostrar sección de credenciales
+            const credentialsDisplay = document.getElementById('credentialsDisplay');
+            credentialsDisplay.classList.add('show');
+
+            // Marcar como generadas y habilitar botón
+            credentialsGenerated = true;
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('generateBtn').textContent = '🔄 Regenerar Credenciales';
+
+            showNotification('✅ Credenciales generadas exitosamente', 'success');
+        }
+
+        // Generar nombre de usuario único
+        function generateUsername(nombre, paterno, ci) {
+            // Normalizar strings (quitar acentos, convertir a minúsculas)
+            const normalizeString = (str) => {
+                return str.normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]/g, '');
+            };
+
+            const nombreNorm = normalizeString(nombre);
+            const paternoNorm = normalizeString(paterno);
+            const ciSuffix = ci.slice(-3); // Últimos 3 dígitos del CI
+
+            // Diferentes patrones para generar username
+            const patterns = [
+                `${nombreNorm}.${paternoNorm}`,
+                `${nombreNorm}_${paternoNorm}`,
+                `${nombreNorm}${paternoNorm}`,
+                `${nombreNorm.substring(0, 3)}${paternoNorm}${ciSuffix}`,
+                `${nombreNorm}${paternoNorm.substring(0, 3)}${ciSuffix}`
+            ];
+
+            // Por ahora usar el primer patrón, en el futuro se puede verificar duplicados
+            return patterns[0];
+        }
+
+        // Generar contraseña segura
+        function generateSecurePassword() {
+            const length = 12;
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%&*';
+
+            let password = '';
+
+            // Asegurar al menos un carácter de cada tipo
+            password += getRandomChar(uppercase);
+            password += getRandomChar(lowercase);
+            password += getRandomChar(numbers);
+            password += getRandomChar(symbols);
+
+            // Completar la longitud restante
+            const allChars = uppercase + lowercase + numbers + symbols;
+            for (let i = 4; i < length; i++) {
+                password += getRandomChar(allChars);
+            }
+
+            // Mezclar la contraseña
+            return shuffleString(password);
+        }
+
+        function getRandomChar(str) {
+            return str[Math.floor(Math.random() * str.length)];
+        }
+
+        function shuffleString(str) {
+            return str.split('').sort(() => 0.5 - Math.random()).join('');
+        }
+
+        // Resetear credenciales cuando cambien los datos
+        function resetCredentials() {
+            credentialsGenerated = false;
+            document.getElementById('credentialsDisplay').classList.remove('show');
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = '🎲 Generar Credenciales Automáticamente';
+            document.getElementById('user_name').value = '';
+            document.getElementById('clave').value = '';
+
+            showNotification('⚠️ Los datos cambiaron. Regenere las credenciales.', 'info');
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('crearUsuarioForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (!credentialsGenerated) {
+                showNotification('❌ Debe generar las credenciales antes de crear el usuario', 'error');
+                return;
+            }
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const submitBtn = document.getElementById('submitBtn');
+
+            loadingIndicator.style.display = 'block';
+            submitBtn.disabled = true;
+
+            showNotification('🔄 Creando usuario completo...', 'info');
+
+            // Enviar formulario
+            this.submit();
+        });
+
+        // Sistema de notificaciones
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                max-width: 400px;
+                word-wrap: break-word;
+                animation: slideInRight 0.3s ease-out;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            `;
+
+            switch (type) {
+                case 'success':
+                    notification.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                    break;
+                case 'error':
+                    notification.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+                    break;
+                case 'info':
+                default:
+                    notification.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                    break;
+            }
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Agregar estilos para animaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>
