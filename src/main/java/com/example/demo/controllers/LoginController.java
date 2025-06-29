@@ -1,13 +1,26 @@
 package com.example.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.entity.Usuario;
 import com.example.demo.models.servicio.AutenticacionService;
 import com.example.demo.models.servicio.PasswordService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -19,6 +32,12 @@ public class LoginController {
     @Autowired
     private PasswordService passwordService;
 
+    @Autowired
+    private HttpServletRequest request;
+
+    @Autowired
+    private HttpServletResponse response;
+
     @GetMapping("/")
     public String index() {
         return "redirect:/login";
@@ -26,7 +45,7 @@ public class LoginController {
 
     @GetMapping("/login")
     public String mostrarLogin() {
-        return "login";
+        return "/login";
     }
 
     @GetMapping("/registro")
@@ -83,6 +102,13 @@ public class LoginController {
             return "login";
         }
     }
+    private Collection<? extends GrantedAuthority> mapearRoles(Usuario usuario) {
+        if (usuario.getRol() != null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre()));
+        } else {
+            return List.of(); // Sin rol asignado
+        }
+    }
     
     /**
      * 🔧 Método auxiliar para procesar login exitoso
@@ -90,27 +116,39 @@ public class LoginController {
     private String procesarLoginExitoso(Usuario usuario, Model model, HttpSession session, String user_name) {
         String token = autenticacionService.generarTokenParaUsuario(usuario);
         
-        // 🔥 GUARDAR EN SESIÓN PARA EL PANEL DE CONTROL
+        // 🔥 GUARDAR EN SESIÓN
         session.setAttribute("userName", usuario.getUser_name());
         session.setAttribute("userToken", token);
         session.setAttribute("userId", usuario.getIdUsuario());
         
         model.addAttribute("usuario", usuario);
         model.addAttribute("token", token);
+
+        // ✅ AUTENTICACIÓN SPRING SECURITY
+        var authorities = mapearRoles(usuario);
+        var authToken = new UsernamePasswordAuthenticationToken(
+            usuario.getUser_name(), null, authorities
+        );
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+        SecurityContextImpl securityContext = new SecurityContextImpl(authToken);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
         
-        // Verificar rol del usuario
+        // ✅ REDIRECCIÓN
         boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
-        
+
         if (isAdmin) {
-            System.out.println("👑 Login exitoso para ADMINISTRADOR: " + user_name + " - Sesión creada");
-            System.out.println("🚀 Redirigiendo al PANEL DE ADMINISTRACIÓN");
+            System.out.println("👑 Login exitoso para ADMINISTRADOR: " + user_name);
             return "redirect:/dashboard";
         } else {
-            System.out.println("✅ Login exitoso para USUARIO: " + user_name + " - Sesión creada");
-            System.out.println("🚀 Redirigiendo al PANEL DE CONTROL ESP32");
+            System.out.println("✅ Login exitoso para USUARIO: " + user_name);
             return "redirect:/control";
         }
     }
+
+
+    
+
+
 
     @PostMapping("/registro")
     public String procesarRegistro(@RequestParam String user_name,

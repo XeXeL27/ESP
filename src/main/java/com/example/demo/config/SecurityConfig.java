@@ -12,7 +12,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // ✅ Desactiva CSRF para permitir login manual
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/dashboard","/control/**", "/logout", "/logs", "/img/**").permitAll()
+                .requestMatchers("/login").permitAll()
                 .anyRequest().authenticated() // Resto requiere sesión
             )
             .formLogin(form -> form.disable()) // ❌ No usar login de Spring Security
