@@ -10,13 +10,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // ✅ Desactiva CSRF para permitir login manual
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login").permitAll()
-                .anyRequest().authenticated() // Resto requiere sesión
+                .requestMatchers("/login", "/registro", "/admin/desbloquear-ip").permitAll()
+                .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
             )
-            .formLogin(form -> form.disable()) // ❌ No usar login de Spring Security
-            .logout(logout -> logout.disable()); // ❌ Logout lo controlas tú
+            .formLogin(form -> form.disable())
+            .logout(logout -> logout.disable());
 
         return http.build();
     }

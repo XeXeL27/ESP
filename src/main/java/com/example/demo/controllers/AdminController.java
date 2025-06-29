@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.entity.Usuario;
 import com.example.demo.models.servicio.AutenticacionService;
+import com.example.demo.models.servicioImpl.SecurityService;
 import com.example.demo.models.dao.UsuarioDao;
 
 import java.util.ArrayList;
@@ -25,6 +26,57 @@ public class AdminController {
     
     @Autowired
     private UsuarioDao usuarioDao;
+
+@Autowired
+    private SecurityService securityService;
+
+    @GetMapping("/admin/desbloquear-ip")
+    public String mostrarVistaDesbloquearIp(HttpSession session, Model model) {
+        String userName = (String) session.getAttribute("userName");
+        String userToken = (String) session.getAttribute("userToken");
+
+        if (userName == null || userToken == null) {
+            return "redirect:/login";
+        }
+
+        Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
+        if (usuarioOpt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        Usuario usuario = usuarioOpt.get();
+        boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
+        if (!isAdmin) {
+            return "redirect:/control";
+        }
+
+        model.addAttribute("usuario", usuario);
+        return "desbloquear-ip";
+    }
+
+    @GetMapping("/api/admin/bloqueadas")
+    @ResponseBody
+    public ResponseEntity<?> obtenerIpsBloqueadas(HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        String userToken = (String) session.getAttribute("userToken");
+
+        if (userName == null || userToken == null) {
+            return ResponseEntity.status(401).body("No autenticado");
+        }
+
+        Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.status(401).body("Token inválido");
+        }
+
+        Usuario usuario = usuarioOpt.get();
+        if (usuario.getRol() == null || !"ADMIN".equals(usuario.getRol().getNombre())) {
+            return ResponseEntity.status(403).body("Acceso denegado");
+        }
+
+        return ResponseEntity.ok(securityService.obtenerIpsBloqueadas());
+    }
 
     @GetMapping("/dashboard")
     public String mostrarDashboard(Model model, HttpSession session, 

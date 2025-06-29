@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 NEXUS IP CONTROL - Quantum Firewall</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fondo cyberpunk avanzado */
+        .cyber-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 150, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 100, 0, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            z-index: -2;
+        }
+
+        /* Grid de hexágonos animados */
+        .hex-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .hexagon {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #00ffff, #ff0080);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: hexFloat 12s ease-in-out infinite;
+        }
+
+        .hexagon:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .hexagon:nth-child(2) {
+            top: 20%;
+            left: 15%;
+            animation-delay: 2s;
+        }
+
+        .hexagon:nth-child(3) {
+            top: 30%;
+            left: 25%;
+            animation-delay: 4s;
+        }
+
+        .hexagon:nth-child(4) {
+            top: 40%;
+            left: 35%;
+            animation-delay: 6s;
+        }
+
+        .hexagon:nth-child(5) {
+            top: 50%;
+            left: 45%;
+            animation-delay: 8s;
+        }
+
+        .hexagon:nth-child(6) {
+            top: 60%;
+            left: 55%;
+            animation-delay: 10s;
+        }
+
+        .hexagon:nth-child(7) {
+            top: 70%;
+            left: 65%;
+            animation-delay: 1s;
+        }
+
+        .hexagon:nth-child(8) {
+            top: 80%;
+            left: 75%;
+            animation-delay: 3s;
+        }
+
+        .hexagon:nth-child(9) {
+            top: 15%;
+            left: 85%;
+            animation-delay: 5s;
+        }
+
+        .hexagon:nth-child(10) {
+            top: 35%;
+            left: 95%;
+            animation-delay: 7s;
+        }
+
+        @keyframes hexFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: translateY(-30px) rotate(180deg) scale(1.3);
+                opacity: 0.4;
+            }
+        }
+
+        /* Líneas de circuito animadas */
+        .circuit-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .circuit-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            height: 2px;
+            animation: circuitFlow 6s linear infinite;
+        }
+
+        .circuit-line:nth-child(1) {
+            top: 25%;
+            width: 300px;
+            left: -300px;
+            animation-delay: 0s;
+        }
+
+        .circuit-line:nth-child(2) {
+            top: 55%;
+            width: 200px;
+            left: -200px;
+            animation-delay: 2s;
+        }
+
+        .circuit-line:nth-child(3) {
+            top: 75%;
+            width: 250px;
+            left: -250px;
+            animation-delay: 4s;
+        }
+
+        @keyframes circuitFlow {
+            0% {
+                left: -300px;
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                left: 100vw;
+                opacity: 0;
+            }
+        }
+
+        /* Container principal */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 30px;
+        }
+
+        /* Header futurista */
+        .cyber-header {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 0 0 25px 25px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            width: 100%;
+            max-width: 1200px;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cyber-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            animation: headerScan 4s ease-in-out infinite;
+        }
+
+        @keyframes headerScan {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .cyber-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .cyber-subtitle {
+            font-size: 1.3rem;
+            color: rgba(0, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 500;
+        }
+
+        /* Panels mejorados */
+        .cyber-panel {
+            background: linear-gradient(145deg, rgba(0, 255, 255, 0.05), rgba(255, 0, 128, 0.05));
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cyber-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.05), transparent);
+            animation: panelGlow 5s ease-in-out infinite;
+        }
+
+        @keyframes panelGlow {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: #00ffff;
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Formulario futurista */
+        .cyber-form {
+            position: relative;
+            z-index: 2;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .cyber-input {
+            width: 100%;
+            padding: 18px 25px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+            font-size: 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .cyber-input::placeholder {
+            color: rgba(0, 255, 255, 0.6);
+            font-weight: 400;
+        }
+
+        .cyber-input:focus {
+            border-color: rgba(0, 255, 255, 0.8);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0, 255, 255, 0.6);
+            font-size: 1.2rem;
+        }
+
+        .cyber-input.with-icon {
+            padding-left: 50px;
+        }
+
+        /* Botones cyberpunk */
+        .cyber-btn {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 15px 30px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            border-radius: 15px;
+            z-index: -1;
+            animation: borderFlow 3s ease-in-out infinite;
+        }
+
+        @keyframes borderFlow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .cyber-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 255, 255, 0.4);
+        }
+
+        .cyber-btn.primary {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(0, 150, 255, 0.3));
+        }
+
+        .cyber-btn.danger {
+            background: linear-gradient(45deg, rgba(255, 0, 80, 0.3), rgba(255, 50, 0, 0.3));
+        }
+
+        .cyber-btn.teleport {
+            background: linear-gradient(45deg, rgba(255, 0, 150, 0.3), rgba(255, 100, 0, 0.3));
+            font-size: 16px;
+            padding: 20px 40px;
+        }
+
+        /* Resultado con efectos */
+        .resultado {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px dashed rgba(0, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 60px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 2;
+            font-family: 'Orbitron', monospace;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .resultado.success {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: rgba(0, 255, 0, 0.5);
+            color: #00ff00;
+            animation: successPulse 2s ease-in-out;
+        }
+
+        .resultado.warning {
+            background: rgba(255, 255, 0, 0.1);
+            border-color: rgba(255, 255, 0, 0.5);
+            color: #ffff00;
+        }
+
+        .resultado.error {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.5);
+            color: #ff0000;
+            animation: errorShake 0.5s ease-in-out;
+        }
+
+        @keyframes successPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 0 40px rgba(0, 255, 0, 0.6);
+            }
+        }
+
+        @keyframes errorShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        /* Tabla cyberpunk mejorada */
+        .table-container {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(10, 10, 30, 0.8));
+            border: 2px solid rgba(255, 0, 128, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 1s ease-out 0.3s both;
+        }
+
+        .table-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 128, 0.03), transparent);
+            animation: panelGlow 6s ease-in-out infinite 2s;
+        }
+
+        .table-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            color: #ff0080;
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255, 0, 128, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .cyber-table {
+            width: 100%;
+            border-collapse: collapse;
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .cyber-table th {
+            background: linear-gradient(45deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            color: #ffffff;
+            padding: 15px;
+            text-align: left;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .cyber-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .cyber-table tr:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .cyber-table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .ip-cell {
+            font-family: 'Orbitron', monospace;
+            color: #00ffff;
+            font-weight: 600;
+        }
+
+        .time-cell {
+            color: #ffff00;
+            font-weight: 600;
+        }
+
+        /* Footer futurista */
+        .cyber-footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Efectos de transición */
+        .fade-out {
+            animation: fadeOutTeleport 1s forwards;
+        }
+
+        @keyframes fadeOutTeleport {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+                filter: brightness(100%) blur(0px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(3);
+                filter: brightness(500%) blur(5px);
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ffff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .cyber-title {
+                font-size: 2rem;
+            }
+
+            .cyber-panel {
+                margin: 0 10px;
+                padding: 20px;
+            }
+
+            .table-container {
+                margin: 0 10px;
+                padding: 20px;
+                overflow-x: auto;
+            }
+
+            .cyber-table {
+                min-width: 500px;
+            }
+        }
+
+        /* Efectos de entrada escalonados */
+        .stagger-1 {
+            animation-delay: 0.1s;
+        }
+
+        .stagger-2 {
+            animation-delay: 0.3s;
+        }
+
+        .stagger-3 {
+            animation-delay: 0.5s;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fondo cyberpunk -->
+    <div class="cyber-background"></div>
+
+    <!-- Grid de hexágonos -->
+    <div class="hex-grid">
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+    </div>
+
+    <!-- Líneas de circuito -->
+    <div class="circuit-lines">
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+    </div>
+
+    <div class="main-container">
+        <!-- Header futurista -->
+        <header class="cyber-header">
+            <h1 class="cyber-title">NEXUS IP CONTROL</h1>
+            <p class="cyber-subtitle">Sistema de Firewall Cuántico</p>
+        </header>
+
+        <!-- Panel de desbloqueo -->
+        <div class="cyber-panel stagger-1">
+            <h2 class="panel-title">🔓 Protocolo de Liberación IP</h2>
+            <form id="form-unblock" class="cyber-form">
+                <div class="input-group">
+                    <span class="input-icon">🌐</span>
+                    <input type="text" id="ip" name="ip" class="cyber-input with-icon"
+                        placeholder="Dirección IP objetivo (ej: 192.168.1.100)" required
+                        pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                </div>
+                <button type="submit" class="cyber-btn primary">
+                    🚀 Ejecutar Protocolo de Liberación
+                </button>
+            </form>
+            <div class="resultado" id="resultado">
+                Esperando comando de liberación...
+            </div>
+        </div>
+
+        <!-- Botón de regreso -->
+        <button class="cyber-btn teleport stagger-2" onclick="teleportToDashboard()">
+            ⬅️ Teletransporte al Nexus Principal
+        </button>
+
+        <!-- Tabla de IPs bloqueadas -->
+        <div class="table-container stagger-3">
+            <h2 class="table-title">🛡️ Matriz de Bloqueo Activa</h2>
+            <table class="cyber-table" id="tablaBloqueadas">
+                <thead>
+                    <tr>
+                        <th>🌐 Dirección IP</th>
+                        <th>⏰ Tiempo Restante</th>
+                        <th>⚡ Protocolo de Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 20px;">
+                            <span class="loading"></span> Escaneando matriz de bloqueo...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <footer class="cyber-footer">
+            🔥 NEXUS CyberSecurity Suite v2.0 | Protocolo de Seguridad Cuántica Activo | Neural Link Estable
+        </footer>
+    </div>
+
+    <script>
+        // Variables globales
+        const form = document.getElementById('form-unblock');
+        const resultado = document.getElementById('resultado');
+        const tabla = document.getElementById('tablaBloqueadas').querySelector('tbody');
+        let isProcessing = false;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🔥 NEXUS IP Control System initialized');
+            cargarBloqueadas();
+            startSystemMonitoring();
+
+            // Mensaje de bienvenida
+            setTimeout(() => {
+                showNotification('🚀 Sistema NEXUS activado | Firewall cuántico en línea', 'success');
+            }, 1000);
+        });
+
+        // Event listener del formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (isProcessing) {
+                showNotification('⚠️ Proceso en ejecución | Espere...', 'warning');
+                return;
+            }
+
+            const ip = document.getElementById('ip').value.trim();
+            if (ip && validateIP(ip)) {
+                await desbloquear(ip);
+            } else {
+                showResultado('❌ Formato de IP inválido', 'error');
+            }
+        });
+
+        // Validación de IP
+        function validateIP(ip) {
+            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+            if (!ipRegex.test(ip)) return false;
+
+            const parts = ip.split('.');
+            return parts.every(part => {
+                const num = parseInt(part, 10);
+                return num >= 0 && num <= 255;
+            });
+        }
+
+        // Función principal de desbloqueo
+        async function desbloquear(ip) {
+            isProcessing = true;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+
+            try {
+                // Animación de procesamiento
+                submitBtn.innerHTML = '<span class="loading"></span> Ejecutando protocolo...';
+                submitBtn.disabled = true;
+                showResultado('🔄 Transmitiendo comando cuántico...', 'processing');
+
+                const formData = new URLSearchParams();
+                formData.append('ip', ip);
+
+                const res = await fetch('/admin/unblock-ip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                const texto = await res.text();
+
+                if (texto.includes('✅')) {
+                    showResultado(`✅ PROTOCOLO EXITOSO | IP ${ip} liberada del matrix de bloqueo`, 'success');
+                    showNotification('🎉 Liberación cuántica completada', 'success');
+                    document.getElementById('ip').value = ''; // Limpiar input
+                } else if (texto.includes('⚠️')) {
+                    showResultado(`⚠️ ADVERTENCIA | ${texto}`, 'warning');
+                    showNotification('⚠️ Protocolo ejecutado con advertencias', 'warning');
+                } else {
+                    showResultado(`❌ FALLO DEL PROTOCOLO | ${texto}`, 'error');
+                    showNotification('❌ Error en el sistema cuántico', 'error');
+                }
+
+                // Recargar tabla después de 1 segundo
+                setTimeout(() => cargarBloqueadas(), 1000);
+
+            } catch (err) {
+                console.error('Error en desbloqueo:', err);
+                showResultado('❌ ERROR CRÍTICO | Falla en comunicación cuántica', 'error');
+                showNotification('❌ Error crítico del sistema', 'error');
+            } finally {
+                // Restaurar botón
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    isProcessing = false;
+                }, 2000);
+            }
+        }
+
+        // Mostrar resultado con efectos
+        function showResultado(mensaje, tipo) {
+            resultado.textContent = mensaje;
+            resultado.className = 'resultado ' + tipo;
+
+            // Efecto de pulsación
+            resultado.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                resultado.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // Cargar IPs bloqueadas
+        async function cargarBloqueadas() {
+            try {
+                const res = await fetch('/api/admin/bloqueadas');
+
+                if (!res.ok) {
+                    throw new Error(`Error HTTP: ${res.status}`);
+                }
+
+                const data = await res.json();
+                actualizarTabla(data);
+
+            } catch (err) {
+                console.error('Error cargando IPs bloqueadas:', err);
+                tabla.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #ff4757;">
+                            ❌ Error al conectar con el matrix de bloqueo
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Actualizar tabla con efectos
+        function actualizarTabla(data) {
+            tabla.innerHTML = '';
+
+            if (data.length === 0) {
+                tabla.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #2ed573;">
+                            ✅ Matrix de bloqueo limpio | No hay amenazas detectadas
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach((ipObj, index) => {
+                const tr = document.createElement('tr');
+                tr.style.opacity = '0';
+                tr.style.transform = 'translateY(20px)';
+
+                tr.innerHTML = `
+                    <td class="ip-cell">🌐 ${ipObj.ip}</td>
+                    <td class="time-cell">⏰ ${ipObj.minutosRestantes} min</td>
+                    <td>
+                        <button class="cyber-btn danger" onclick="desbloquear('${ipObj.ip}')" 
+                                style="padding: 8px 15px; font-size: 12px;">
+                            🚀 Liberar
+                        </button>
+                    </td>
+                `;
+
+                tabla.appendChild(tr);
+
+                // Animación de entrada escalonada
+                setTimeout(() => {
+                    tr.style.transition = 'all 0.5s ease';
+                    tr.style.opacity = '1';
+                    tr.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // Sistema de notificaciones cyberpunk
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                background: linear-gradient(45deg, rgba(0, 0, 0, 0.9), rgba(0, 20, 40, 0.9));
+                border: 2px solid;
+                border-radius: 15px;
+                padding: 20px 25px;
+                color: #ffffff;
+                z-index: 10000;
+                transform: translateX(400px);
+                transition: all 0.5s ease;
+                backdrop-filter: blur(20px);
+                max-width: 350px;
+                font-weight: 500;
+                font-family: 'Orbitron', monospace;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            `;
+
+            switch (type) {
+                case 'success':
+                    notification.style.borderColor = 'rgba(0, 255, 0, 0.7)';
+                    notification.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.3)';
+                    break;
+                case 'error':
+                    notification.style.borderColor = 'rgba(255, 0, 0, 0.7)';
+                    notification.style.boxShadow = '0 0 30px rgba(255, 0, 0, 0.3)';
+                    break;
+                case 'warning':
+                    notification.style.borderColor = 'rgba(255, 255, 0, 0.7)';
+                    notification.style.boxShadow = '0 0 30px rgba(255, 255, 0, 0.3)';
+                    break;
+                default:
+                    notification.style.borderColor = 'rgba(0, 255, 255, 0.7)';
+                    notification.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.3)';
+                    break;
+            }
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Mostrar notificación
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Ocultar notificación después de 4 segundos
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 500);
+            }, 4000);
+        }
+
+        // Teletransporte al dashboard
+        function teleportToDashboard() {
+            const body = document.body;
+
+            // Efecto de sonido simulado
+            showNotification('🌀 Iniciando teletransporte cuántico...', 'info');
+
+            // Efecto visual de teletransporte
+            body.style.transition = 'all 1s ease-out';
+            body.classList.add('fade-out');
+
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 800);
+        }
+
+        // Monitoreo automático del sistema
+        function startSystemMonitoring() {
+            // Recargar tabla cada 60 segundos
+            setInterval(() => {
+                cargarBloqueadas();
+                console.log('🔄 Matrix de bloqueo actualizado automáticamente');
+            }, 60000);
+
+            // Actualizar contadores en tiempo real
+            setInterval(() => {
+                const timeCells = document.querySelectorAll('.time-cell');
+                timeCells.forEach(cell => {
+                    const text = cell.textContent;
+                    const match = text.match(/(\d+) min/);
+                    if (match) {
+                        const minutes = parseInt(match[1]);
+                        if (minutes > 0) {
+                            const newMinutes = minutes - 1;
+                            cell.textContent = `⏰ ${newMinutes} min`;
+
+                            // Cambiar color según tiempo restante
+                            if (newMinutes <= 1) {
+                                cell.style.color = '#ff4757';
+                                cell.style.animation = 'blink 1s infinite';
+                            } else if (newMinutes <= 5) {
+                                cell.style.color = '#ffa502';
+                            }
+                        } else {
+                            // Tiempo agotado, recargar tabla
+                            cargarBloqueadas();
+                        }
+                    }
+                });
+            }, 60000); // Cada minuto
+        }
+
+        // Atajos de teclado cyberpunk
+        document.addEventListener('keydown', function (e) {
+            if (e.target.tagName === 'INPUT') return;
+
+            switch (e.key.toLowerCase()) {
+                case 'r':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        cargarBloqueadas();
+                        showNotification('🔄 Matrix de bloqueo recargado manualmente', 'info');
+                    }
+                    break;
+                case 'escape':
+                    e.preventDefault();
+                    teleportToDashboard();
+                    break;
+                case 'f':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        document.getElementById('ip').focus();
+                    }
+                    break;
+            }
+        });
+
+        // Efecto de cursor cyberpunk
+        document.addEventListener('mousemove', function (e) {
+            const cursor = document.querySelector('.cyber-cursor');
+            if (!cursor) {
+                const newCursor = document.createElement('div');
+                newCursor.className = 'cyber-cursor';
+                newCursor.style.cssText = `
+                    position: fixed;
+                    width: 20px;
+                    height: 20px;
+                    background: radial-gradient(circle, rgba(0,255,255,0.6), transparent);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    transition: transform 0.1s ease;
+                    mix-blend-mode: screen;
+                `;
+                document.body.appendChild(newCursor);
+            }
+
+            const cursorElement = document.querySelector('.cyber-cursor');
+            if (cursorElement) {
+                cursorElement.style.left = e.clientX - 10 + 'px';
+                cursorElement.style.top = e.clientY - 10 + 'px';
+            }
+        });
+
+        // Efecto de parpadeo para elementos críticos
+        const blinkStyle = document.createElement('style');
+        blinkStyle.textContent = `
+            @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0.3; }
+            }
+        `;
+        document.head.appendChild(blinkStyle);
+
+        // Simulación de datos en tiempo real (solo para demostración)
+        function simulateRealTimeData() {
+            const statusElements = document.querySelectorAll('.time-cell');
+            statusElements.forEach(element => {
+                // Agregar efecto de "datos en vivo"
+                element.style.textShadow = '0 0 10px currentColor';
+            });
+        }
+
+        // Auto-refresh mejorado con indicador visual
+        function showRefreshIndicator() {
+            const indicator = document.createElement('div');
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 255, 255, 0.1);
+                border: 1px solid rgba(0, 255, 255, 0.5);
+                border-radius: 20px;
+                padding: 10px 20px;
+                color: #00ffff;
+                font-family: 'Orbitron', monospace;
+                font-size: 12px;
+                z-index: 9999;
+                animation: slideDown 0.3s ease-out;
+            `;
+            indicator.textContent = '🔄 Actualizando matrix de bloqueo...';
+            document.body.appendChild(indicator);
+
+            setTimeout(() => {
+                if (document.body.contains(indicator)) {
+                    indicator.style.animation = 'slideUp 0.3s ease-out forwards';
+                    setTimeout(() => {
+                        if (document.body.contains(indicator)) {
+                            document.body.removeChild(indicator);
+                        }
+                    }, 300);
+                }
+            }, 2000);
+        }
+
+        // Mostrar indicador al recargar
+        const originalCargar = cargarBloqueadas;
+        cargarBloqueadas = function () {
+            showRefreshIndicator();
+            return originalCargar();
+        };
+
+        // Prevenir cierre accidental
+        window.addEventListener('beforeunload', function (e) {
+            if (isProcessing) {
+                e.preventDefault();
+                e.returnValue = 'Proceso crítico en ejecución. ¿Confirmar salida?';
+            }
+        });
+
+        // Easter egg: Código Konami
+        let konamiSequence = [];
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+
+        document.addEventListener('keydown', function (e) {
+            konamiSequence.push(e.code);
+            if (konamiSequence.length > konamiCode.length) {
+                konamiSequence.shift();
+            }
+
+            if (JSON.stringify(konamiSequence) === JSON.stringify(konamiCode)) {
+                activateMatrixMode();
+                konamiSequence = [];
+            }
+        });
+
+        function activateMatrixMode() {
+            document.body.style.filter = 'hue-rotate(120deg) saturate(2) contrast(1.2)';
+            showNotification('🔥 MODO MATRIX ACTIVADO | Realidad aumentada habilitada', 'success');
+
+            // Crear efecto matrix de números
+            createMatrixRain();
+        }
+
+        function createMatrixRain() {
+            const canvas = document.createElement('canvas');
+            canvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                opacity: 0.3;
+                pointer-events: none;
+            `;
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const matrix = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]{}|;:,.<>?';
+            const drops = [];
+
+            for (let x = 0; x < canvas.width / 10; x++) {
+                drops[x] = 1;
+            }
+
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#00ffff';
+                ctx.font = '10px Orbitron';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrix[Math.floor(Math.random() * matrix.length)];
+                    ctx.fillText(text, i * 10, drops[i] * 10);
+
+                    if (drops[i] * 10 > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            const matrixInterval = setInterval(drawMatrix, 35);
+
+            // Remover efecto después de 10 segundos
+            setTimeout(() => {
+                clearInterval(matrixInterval);
+                if (document.body.contains(canvas)) {
+                    document.body.removeChild(canvas);
+                }
+                document.body.style.filter = '';
+                showNotification('💫 Modo Matrix desactivado | Volviendo a realidad normal', 'info');
+            }, 10000);
+        }
+
+        console.log('🔥 NEXUS IP Control System fully loaded | Ready for quantum operations');
+    </script>
+</body>
+
+</html>

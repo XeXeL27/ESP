@@ -855,6 +855,8 @@
                     <span class="tooltiptext">Access ESP32 Control Matrix</span>
                 </div>
                 <a href="/logs" class="btn btn-primary" style="text-decoration: none;">📜LOGS</a>
+                <a href="/admin/desbloquear-ip" class="btn btn-danger btn-glow" style="text-decoration: none;">🛡️
+                    DESBLOQUEAR IPs</a>
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <input type="hidden" name="user_name" th:value="${usuario.user_name}">
                     <button type="submit" class="btn btn-danger">🚪 DESCONECTAR</button>

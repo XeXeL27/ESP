@@ -1085,11 +1085,10 @@
         </div>
 
         <!-- Mensaje de error general -->
-        <div th:if="${error != null and !isBlocked}">
-
-
+        <div th:if="${error != null}" class="error-message">
             <span th:text="${error}">Error de acceso</span>
         </div>
+
 
         <!-- Mensaje de éxito -->
         <div th:if="${mensaje}" class="success-message">
@@ -1158,12 +1157,13 @@
             document.body.style.animation = 'blockedMode 2s ease-in-out infinite';
 
             // Sonido de alerta simulado
-            showCyberNotification('🚨 ACCESO DENEGADO | PROTOCOLO DE SEGURIDAD ACTIVO', 'error');
+            showCyberNotification('🚨 ACCESO DENEGADO | PROTOCOLO DE SEGURIDAD ACTIVADO', 'error');
 
-            // Actualizar temporizador si es necesario
+            // Mostrar causa del bloqueo si hay tiempo restante
             if (tiempoRestante > 0) {
-                startCountdown();
+                showCyberNotification(`⛔ Has sido bloqueado por ${tiempoRestante} minutos debido a múltiples intentos fallidos`, 'warning');
             }
+
 
             // Efecto de interferencia
             setInterval(() => {

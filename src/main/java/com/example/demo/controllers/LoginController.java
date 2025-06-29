@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.entity.Usuario;
 import com.example.demo.models.servicio.AutenticacionService;
+import com.example.demo.models.servicio.LogService;
 import com.example.demo.models.servicio.PasswordService;
 import com.example.demo.models.servicioImpl.SecurityService;
 
@@ -35,6 +36,9 @@ public class LoginController {
 
     @Autowired
     private SecurityService securityService;
+
+    @Autowired
+    private LogService logService;
 
     @Autowired
     private HttpServletRequest request;
