@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS LOGIN - Sistema ESP</title>
+    <title>NEXUS LOGIN - Sistema ESP Seguro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
 
@@ -25,6 +25,24 @@
             position: relative;
         }
 
+        /* 🔒 Clase para estado bloqueado */
+        body.blocked {
+            background: #2a0a0a;
+            animation: blockedMode 2s ease-in-out infinite;
+        }
+
+        @keyframes blockedMode {
+
+            0%,
+            100% {
+                background: #2a0a0a;
+            }
+
+            50% {
+                background: #3a0a0a;
+            }
+        }
+
         /* Fondo cyberpunk animado */
         .cyber-background {
             position: fixed;
@@ -38,6 +56,15 @@
                 radial-gradient(circle at 40% 40%, rgba(255, 100, 0, 0.1) 0%, transparent 50%),
                 linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
             z-index: -2;
+        }
+
+        /* 🔒 Fondo bloqueado */
+        .cyber-background.blocked {
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 0, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 50, 0, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 0, 50, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, #2a0a0a 0%, #3a1a1a 50%, #3a1a2a 100%);
         }
 
         /* Grid hexagonal animado */
@@ -59,6 +86,16 @@
             animation: hexFlow 20s linear infinite;
         }
 
+        /* 🔒 Grid bloqueado */
+        .hex-grid.blocked {
+            background-image:
+                linear-gradient(30deg, #ff0000 12%, transparent 12.5%, transparent 87%, #ff0000 87.5%, #ff0000),
+                linear-gradient(150deg, #ff0000 12%, transparent 12.5%, transparent 87%, #ff0000 87.5%, #ff0000),
+                linear-gradient(30deg, #ff0000 12%, transparent 12.5%, transparent 87%, #ff0000 87.5%, #ff0000),
+                linear-gradient(150deg, #ff0000 12%, transparent 12.5%, transparent 87%, #ff0000 87.5%, #ff0000);
+            animation: hexFlowBlocked 5s linear infinite;
+        }
+
         @keyframes hexFlow {
             0% {
                 transform: translateY(0px);
@@ -66,6 +103,16 @@
 
             100% {
                 transform: translateY(140px);
+            }
+        }
+
+        @keyframes hexFlowBlocked {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(140px) rotate(180deg);
             }
         }
 
@@ -86,6 +133,32 @@
             height: 1px;
             animation: circuitFlow 8s linear infinite;
             opacity: 0.5;
+        }
+
+        /* 🔒 Líneas bloqueadas */
+        .circuit-line.blocked {
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: circuitFlowBlocked 3s linear infinite;
+        }
+
+        @keyframes circuitFlowBlocked {
+            0% {
+                left: -250px;
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                left: 100vw;
+                opacity: 0;
+            }
         }
 
         .circuit-line:nth-child(1) {
@@ -162,6 +235,35 @@
             background: rgba(255, 0, 128, 0.8);
             box-shadow: 0 0 6px rgba(255, 0, 128, 0.5);
             animation-duration: 10s;
+        }
+
+        /* 🔒 Partículas bloqueadas */
+        .particle.blocked {
+            background: rgba(255, 0, 0, 0.8) !important;
+            box-shadow: 0 0 6px rgba(255, 0, 0, 0.5) !important;
+            animation: floatCyberBlocked 4s ease-in-out infinite !important;
+        }
+
+        @keyframes floatCyberBlocked {
+
+            0%,
+            100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(-360deg);
+                opacity: 0;
+            }
         }
 
         .particle:nth-child(1) {
@@ -248,6 +350,32 @@
             overflow: hidden;
         }
 
+        /* 🔒 Contenedor bloqueado */
+        .login-container.blocked {
+            background: linear-gradient(145deg, rgba(255, 0, 0, 0.2), rgba(255, 50, 0, 0.2));
+            border: 2px solid rgba(255, 0, 0, 0.6);
+            box-shadow:
+                0 30px 60px rgba(255, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 0, 0, 0.2);
+            animation: loginSlideIn 1s ease-out, blockedShake 1s ease-in-out infinite;
+        }
+
+        @keyframes blockedShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-2px);
+            }
+
+            75% {
+                transform: translateX(2px);
+            }
+        }
+
         .login-container::before {
             content: '';
             position: absolute;
@@ -257,6 +385,22 @@
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
             animation: loginScan 4s ease-in-out infinite;
+        }
+
+        /* 🔒 Escaneo bloqueado */
+        .login-container.blocked::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.2), transparent);
+            animation: loginScanBlocked 1s ease-in-out infinite;
+        }
+
+        @keyframes loginScanBlocked {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
         }
 
         @keyframes loginSlideIn {
@@ -303,6 +447,24 @@
             text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
         }
 
+        /* 🔒 Título bloqueado */
+        .logo h1.blocked {
+            background: linear-gradient(45deg, #ff0000, #ff5500, #ff0000, #ff5500);
+            animation: gradientShiftBlocked 1s ease-in-out infinite;
+        }
+
+        @keyframes gradientShiftBlocked {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
         @keyframes gradientShift {
 
             0%,
@@ -324,11 +486,165 @@
             letter-spacing: 2px;
         }
 
+        /* 🔒 Subtítulo bloqueado */
+        .logo p.blocked {
+            color: rgba(255, 0, 0, 0.9);
+            animation: textFlicker 0.5s ease-in-out infinite;
+        }
+
+        @keyframes textFlicker {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
         .subtitle {
             color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
             font-style: italic;
             letter-spacing: 1px;
+        }
+
+        /* 🔒 ALERTAS DE SEGURIDAD */
+        .security-alert {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            backdrop-filter: blur(15px);
+            animation: securityPulse 2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .security-alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: alertScan 3s ease-in-out infinite;
+        }
+
+        @keyframes alertScan {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .security-alert.blocked {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(255, 50, 0, 0.3));
+            border: 2px solid rgba(255, 0, 0, 0.8);
+            color: #ff6b6b;
+            box-shadow:
+                0 0 30px rgba(255, 0, 0, 0.5),
+                inset 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .security-alert.warning {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.3), rgba(255, 100, 0, 0.3));
+            border: 2px solid rgba(255, 165, 0, 0.8);
+            color: #ffb347;
+            box-shadow:
+                0 0 30px rgba(255, 165, 0, 0.5),
+                inset 0 0 20px rgba(255, 165, 0, 0.2);
+        }
+
+        @keyframes securityPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.02);
+                opacity: 0.9;
+            }
+        }
+
+        /* 🔒 CONTADOR DE INTENTOS */
+        .attempts-counter {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 200, 0, 0.2));
+            border: 2px solid rgba(255, 165, 0, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #ffb347;
+            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(15px);
+            animation: warningPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(255, 165, 0, 0.6);
+            }
+        }
+
+        /* 🔒 TEMPORIZADOR DE BLOQUEO */
+        .lockout-timer {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(200, 0, 0, 0.3));
+            border: 2px solid rgba(255, 0, 0, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #ff6b6b;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            backdrop-filter: blur(15px);
+            animation: lockoutPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes lockoutPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+                border-color: rgba(255, 0, 0, 0.8);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(255, 0, 0, 0.8);
+                border-color: rgba(255, 0, 0, 1);
+            }
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
         }
 
         /* Grupos de formulario */
@@ -392,6 +708,18 @@
                 inset 0 0 20px rgba(0, 255, 255, 0.1);
         }
 
+        /* 🔒 Inputs deshabilitados */
+        .form-group input:disabled {
+            background: rgba(100, 0, 0, 0.4);
+            border-color: rgba(255, 0, 0, 0.5);
+            color: rgba(255, 100, 100, 0.7);
+            cursor: not-allowed;
+        }
+
+        .form-group input:disabled::placeholder {
+            color: rgba(255, 0, 0, 0.5);
+        }
+
         /* Botón de login cyberpunk */
         .login-btn {
             width: 100%;
@@ -428,7 +756,7 @@
             left: 100%;
         }
 
-        .login-btn:hover {
+        .login-btn:hover:not(:disabled) {
             background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(255, 0, 128, 0.4));
             border-color: rgba(0, 255, 255, 0.8);
             transform: translateY(-3px);
@@ -437,7 +765,17 @@
                 0 0 50px rgba(0, 255, 255, 0.2);
         }
 
-        .login-btn:active {
+        /* 🔒 Botón deshabilitado */
+        .login-btn:disabled {
+            background: linear-gradient(135deg, rgba(100, 0, 0, 0.3), rgba(150, 0, 0, 0.3));
+            border-color: rgba(255, 0, 0, 0.5);
+            color: rgba(255, 100, 100, 0.7);
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .login-btn:active:not(:disabled) {
             transform: translateY(-1px);
         }
 
@@ -676,32 +1014,32 @@
     </style>
 </head>
 
-<body>
+<body th:class="${isBlocked} ? 'blocked' : ''">
     <!-- Fondo cyberpunk -->
-    <div class="cyber-background"></div>
+    <div class="cyber-background" th:class="${isBlocked} ? 'blocked' : ''"></div>
 
     <!-- Grid hexagonal -->
-    <div class="hex-grid"></div>
+    <div class="hex-grid" th:class="${isBlocked} ? 'blocked' : ''"></div>
 
     <!-- Líneas de circuito -->
     <div class="circuit-lines">
-        <div class="circuit-line"></div>
-        <div class="circuit-line"></div>
-        <div class="circuit-line"></div>
-        <div class="circuit-line"></div>
+        <div class="circuit-line" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="circuit-line" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="circuit-line" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="circuit-line" th:class="${isBlocked} ? 'blocked' : ''"></div>
     </div>
 
     <!-- Partículas cyberpunk -->
     <div class="cyber-particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
+        <div class="particle" th:class="${isBlocked} ? 'blocked' : ''"></div>
     </div>
 
     <!-- Formas flotantes cyberpunk -->
@@ -711,17 +1049,45 @@
         <div class="cyber-shape"></div>
     </div>
 
-    <div class="login-container">
+    <div class="login-container" th:class="${isBlocked} ? 'blocked' : ''">
         <div class="loading-effect"></div>
 
         <div class="logo">
-            <h1 id="mainTitle">🚀 NEXUS ESP</h1>
-            <p>Acceso Neural Seguro</p>
-            <p class="subtitle">Autenticación con Token Único</p>
+            <h1 id="mainTitle" th:class="${isBlocked} ? 'blocked' : ''">🚀 NEXUS ESP</h1>
+            <p th:class="${isBlocked} ? 'blocked' : ''">
+                <span th:if="${isBlocked}">⚠️ ACCESO DENEGADO</span>
+                <span th:unless="${isBlocked}">Acceso Neural Seguro</span>
+            </p>
+            <p class="subtitle" th:if="${!isBlocked}">Autenticación con Token Único</p>
+            <p class="subtitle" th:if="${isBlocked}" style="color: rgba(255, 0, 0, 0.8);">Sistema Bloqueado</p>
         </div>
 
-        <!-- Mensaje de error -->
-        <div th:if="${error}" class="error-message">
+        <!-- 🔒 ALERTA DE IP BLOQUEADA -->
+        <div th:if="${isBlocked}" class="security-alert blocked">
+            <div>🚨 PROTOCOLO DE SEGURIDAD ACTIVADO</div>
+            <div style="margin-top: 10px; font-size: 0.9rem;">IP BLOQUEADA POR INTENTOS FALLIDOS</div>
+        </div>
+
+        <!-- 🔒 TEMPORIZADOR DE BLOQUEO -->
+        <div th:if="${isBlocked}" class="lockout-timer">
+            <div>⏱️ TIEMPO RESTANTE</div>
+            <div class="timer-display" th:text="${tiempoRestante} + ' MIN'">XX MIN</div>
+            <div style="font-size: 0.8rem; margin-top: 10px;">REINTENTE DESPUÉS DEL BLOQUEO</div>
+        </div>
+
+        <!-- 🔒 CONTADOR DE INTENTOS RESTANTES -->
+        <div th:if="${showWarning and !isBlocked}" class="attempts-counter">
+            <div>⚠️ ADVERTENCIA DE SEGURIDAD</div>
+            <div style="margin-top: 8px; font-size: 1.1rem;">
+                <span th:text="${intentosRestantes}">X</span> INTENTOS RESTANTES
+            </div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">EL SISTEMA SE BLOQUEARÁ DESPUÉS DEL 5TO INTENTO</div>
+        </div>
+
+        <!-- Mensaje de error general -->
+        <div th:if="${error != null and !isBlocked}">
+
+
             <span th:text="${error}">Error de acceso</span>
         </div>
 
@@ -732,24 +1098,86 @@
 
         <form th:action="@{/login}" method="post" id="loginForm">
             <div class="form-group">
-                <input type="text" name="user_name" placeholder="👤 IDENTIFICADOR DE AGENTE" required>
+                <input type="text" name="user_name" placeholder="👤 IDENTIFICADOR DE AGENTE"
+                    th:disabled="${isBlocked} ? true : false" required>
             </div>
 
             <div class="form-group">
-                <input type="password" name="clave" placeholder="🔒 CLAVE DE ACCESO" required>
+                <input type="password" name="clave" placeholder="🔒 CLAVE DE ACCESO"
+                    th:disabled="${isBlocked} ? true : false" required>
             </div>
 
-            <button type="submit" class="login-btn" id="loginButton">
-                INICIAR CONEXIÓN
+            <button type="submit" class="login-btn" id="loginButton" th:disabled="${isBlocked} ? true : false">
+                <span th:if="${isBlocked ?: false}">🚫 ACCESO BLOQUEADO</span>
+                <span th:unless="${isBlocked ?: false}">INICIAR CONEXIÓN</span>
             </button>
         </form>
 
+        <!-- Link de registro (solo si no está bloqueado) -->
+
+        <!-- Información adicional si está bloqueado -->
+        <div th:if="${isBlocked}" class="register-link">
+            <div style="color: rgba(255, 100, 100, 0.8); text-align: center; font-family: 'Orbitron', monospace;">
+                🔒 CONTACTE AL ADMINISTRADOR DEL SISTEMA
+            </div>
+        </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        // 🔒 Variables de seguridad desde el servidor
+        var isBlocked = /*[[${isBlocked ?: false}]]*/ false;
+        var tiempoRestante = /*[[${tiempoRestante ?: 0}]]*/ 0;
+        var intentosRestantes = /*[[${intentosRestantes ?: 5}]]*/ 5;
+        var showWarning = /*[[${showWarning ?: false}]]*/ false;
+
         // Inicialización del sistema
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('🚀 NEXUS LOGIN PROTOCOL INITIATED...');
+            console.log('🚀 NEXUS SECURE LOGIN PROTOCOL INITIATED...');
+            console.log('🔒 Estado de seguridad:', {
+                bloqueado: isBlocked,
+                tiempoRestante: tiempoRestante,
+                intentosRestantes: intentosRestantes,
+                advertencia: showWarning
+            });
+
+            if (isBlocked) {
+                initializeBlockedMode();
+            } else {
+                initializeNormalMode();
+            }
+
+            // Efectos comunes
+            setupCommonEffects();
+        });
+
+        // 🔒 Modo bloqueado
+        function initializeBlockedMode() {
+            console.log('🚨 MODO BLOQUEADO ACTIVADO');
+
+            // Efecto de glitch
+            document.body.style.animation = 'blockedMode 2s ease-in-out infinite';
+
+            // Sonido de alerta simulado
+            showCyberNotification('🚨 ACCESO DENEGADO | PROTOCOLO DE SEGURIDAD ACTIVO', 'error');
+
+            // Actualizar temporizador si es necesario
+            if (tiempoRestante > 0) {
+                startCountdown();
+            }
+
+            // Efecto de interferencia
+            setInterval(() => {
+                const container = document.querySelector('.login-container');
+                container.style.filter = 'hue-rotate(' + Math.random() * 30 + 'deg)';
+                setTimeout(() => {
+                    container.style.filter = 'none';
+                }, 100);
+            }, 2000);
+        }
+
+        // ✅ Modo normal
+        function initializeNormalMode() {
+            console.log('✅ MODO NORMAL ACTIVADO');
 
             // Efecto de escritura cyberpunk para el título
             initiateTitleSequence();
@@ -760,11 +1188,69 @@
             // Configurar efectos del botón
             setupButtonEffects();
 
-            // Mostrar mensaje de bienvenida
+            // Mostrar mensaje según el estado de seguridad
             setTimeout(() => {
-                showCyberNotification('⚡ NEXUS ONLINE | NEURAL INTERFACE READY', 'info');
+                if (showWarning) {
+                    showCyberNotification(`⚠️ ADVERTENCIA | ${intentosRestantes} INTENTOS RESTANTES`, 'warning');
+                } else {
+                    showCyberNotification('⚡ NEXUS ONLINE | NEURAL INTERFACE READY', 'info');
+                }
             }, 1500);
-        });
+        }
+
+        // 🔒 Función para iniciar cuenta regresiva
+        function startCountdown() {
+            const timerDisplay = document.querySelector('.timer-display');
+            if (!timerDisplay) return;
+
+            let remainingTime = tiempoRestante * 60; // Convertir minutos a segundos
+
+            const countdownInterval = setInterval(() => {
+                if (remainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    // Recargar la página cuando expire el tiempo
+                    showCyberNotification('🔓 BLOQUEO EXPIRADO | RECARGANDO SISTEMA...', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                    return;
+                }
+
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                remainingTime--;
+
+                // Efecto de urgencia cuando queda poco tiempo
+                if (remainingTime <= 60) {
+                    timerDisplay.style.color = '#ff0000';
+                    timerDisplay.style.animation = 'textFlicker 0.3s ease-in-out infinite';
+                }
+            }, 1000);
+        }
+
+        // Efectos comunes
+        function setupCommonEffects() {
+            // Detectar conexión de red
+            window.addEventListener('online', () => {
+                showCyberNotification('🌐 NEURAL NETWORK RESTORED', 'success');
+            });
+
+            window.addEventListener('offline', () => {
+                showCyberNotification('⚠️ NEURAL NETWORK DOWN', 'error');
+            });
+
+            // Prevenir inspección en modo bloqueado
+            if (isBlocked) {
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                        e.preventDefault();
+                        showCyberNotification('🔒 ACCESO DENEGADO | SISTEMA BLOQUEADO', 'error');
+                    }
+                });
+            }
+        }
 
         // Efecto de escritura cyberpunk para el título
         function initiateTitleSequence() {
@@ -779,7 +1265,6 @@
                     i++;
                     setTimeout(typeWriter, 120);
                 } else {
-                    // Efecto de brillo al completar
                     title.style.animation = 'gradientShift 3s ease-in-out infinite, titleGlow 2s ease-in-out';
                 }
             };
@@ -789,12 +1274,10 @@
 
         // Configurar efectos de inputs
         function setupInputEffects() {
-            document.querySelectorAll('input').forEach((input, index) => {
+            document.querySelectorAll('input:not(:disabled)').forEach((input, index) => {
                 input.addEventListener('focus', function () {
                     this.parentElement.style.transform = 'scale(1.02)';
                     this.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1)';
-
-                    // Efecto de sonido simulado
                     console.log('🔊 NEURAL INTERFACE ACTIVATED');
                 });
 
@@ -803,7 +1286,6 @@
                 });
 
                 input.addEventListener('input', function () {
-                    // Efecto de escritura cyberpunk
                     this.style.borderColor = 'rgba(0, 255, 255, 0.8)';
                     setTimeout(() => {
                         this.style.borderColor = 'rgba(0, 255, 255, 0.3)';
@@ -817,19 +1299,22 @@
             const loginButton = document.getElementById('loginButton');
             const loginForm = document.getElementById('loginForm');
 
-            loginButton.addEventListener('mouseenter', function () {
-                this.style.boxShadow = '0 15px 35px rgba(0, 255, 255, 0.4), 0 0 60px rgba(0, 255, 255, 0.3)';
-            });
+            if (loginButton && !loginButton.disabled) {
+                loginButton.addEventListener('mouseenter', function () {
+                    this.style.boxShadow = '0 15px 35px rgba(0, 255, 255, 0.4), 0 0 60px rgba(0, 255, 255, 0.3)';
+                });
 
-            loginForm.addEventListener('submit', function (e) {
-                loginButton.textContent = 'CONECTANDO...';
-                loginButton.style.background = 'linear-gradient(135deg, rgba(255, 255, 0, 0.3), rgba(0, 255, 255, 0.3))';
+                loginForm.addEventListener('submit', function (e) {
+                    if (!loginButton.disabled) {
+                        loginButton.textContent = 'CONECTANDO...';
+                        loginButton.style.background = 'linear-gradient(135deg, rgba(255, 255, 0, 0.3), rgba(0, 255, 255, 0.3))';
 
-                // Efecto de procesamiento
-                setTimeout(() => {
-                    loginButton.innerHTML = '<span style="animation: pulse 1s infinite;">PROCESANDO NEURAL LINK...</span>';
-                }, 500);
-            });
+                        setTimeout(() => {
+                            loginButton.innerHTML = '<span style="animation: pulse 1s infinite;">PROCESANDO NEURAL LINK...</span>';
+                        }, 500);
+                    }
+                });
+            }
         }
 
         // Sistema de notificaciones cyberpunk
@@ -863,6 +1348,10 @@
                     notification.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 100, 0, 0.2))';
                     notification.style.borderColor = 'rgba(255, 0, 0, 0.5)';
                     break;
+                case 'warning':
+                    notification.style.background = 'linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 200, 0, 0.2))';
+                    notification.style.borderColor = 'rgba(255, 165, 0, 0.5)';
+                    break;
                 case 'info':
                 default:
                     notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2))';
@@ -880,7 +1369,7 @@
                         document.body.removeChild(notification);
                     }
                 }, 500);
-            }, 3000);
+            }, 4000);
         }
 
         // Agregar estilos de animación dinámicamente
@@ -905,213 +1394,52 @@
         `;
         document.head.appendChild(styleSheet);
 
-        // Atajos de teclado cyberpunk
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                showCyberNotification('🔥 NEURAL BOOST ACTIVATED', 'success');
-                document.body.style.filter = 'hue-rotate(180deg) saturate(1.5)';
-                setTimeout(() => {
-                    document.body.style.filter = 'none';
-                }, 2000);
-            }
-        });
-
-        // Generar partículas adicionales dinámicamente
+        // 🔒 Generar partículas adicionales con efectos de seguridad
         setInterval(() => {
             const particlesContainer = document.querySelector('.cyber-particles');
             if (particlesContainer && particlesContainer.children.length < 12) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
+
+                if (isBlocked) {
+                    particle.classList.add('blocked');
+                }
+
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.animationDelay = '0s';
                 particle.style.animationDuration = (8 + Math.random() * 4) + 's';
 
-                // Color aleatorio cyberpunk
-                const colors = [
-                    'rgba(0, 255, 255, 0.8)',
-                    'rgba(255, 0, 128, 0.8)',
-                    'rgba(255, 255, 0, 0.8)'
-                ];
+                // Color según el estado de seguridad
+                let colors;
+                if (isBlocked) {
+                    colors = ['rgba(255, 0, 0, 0.8)', 'rgba(255, 50, 0, 0.8)'];
+                } else if (showWarning) {
+                    colors = ['rgba(255, 165, 0, 0.8)', 'rgba(255, 200, 0, 0.8)'];
+                } else {
+                    colors = ['rgba(0, 255, 255, 0.8)', 'rgba(255, 0, 128, 0.8)', 'rgba(255, 255, 0, 0.8)'];
+                }
+
                 const randomColor = colors[Math.floor(Math.random() * colors.length)];
                 particle.style.background = randomColor;
                 particle.style.boxShadow = `0 0 6px ${randomColor}`;
 
                 particlesContainer.appendChild(particle);
 
-                // Eliminar partícula después de la animación
                 setTimeout(() => {
                     if (particlesContainer.contains(particle)) {
                         particlesContainer.removeChild(particle);
                     }
                 }, 12000);
             }
-        }, 3000);
+        }, isBlocked ? 1000 : 3000); // Más partículas en modo bloqueado
 
-        // Efectos de monitor de actividad
-        let activityTimeout;
-        function resetActivityMonitor() {
-            clearTimeout(activityTimeout);
-            activityTimeout = setTimeout(() => {
-                showCyberNotification('⚠️ INACTIVIDAD DETECTADA | NEURAL LINK EN ESPERA', 'info');
-            }, 30000); // 30 segundos
-        }
-
-        // Monitorear actividad del usuario
-        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            document.addEventListener(event, resetActivityMonitor, true);
+        console.log('🎮 NEXUS SECURE LOGIN READY | Security protocol active | Neural interface online');
+        console.log('🔒 Security Status:', {
+            blocked: isBlocked,
+            remaining_attempts: intentosRestantes,
+            warning_active: showWarning,
+            lockout_time: tiempoRestante
         });
-
-        resetActivityMonitor();
-
-        // Efecto de glitch en error
-        window.addEventListener('error', function () {
-            console.log('🔴 NEURAL ERROR DETECTED');
-            document.body.style.animation = 'glitch 0.3s ease-in-out';
-            setTimeout(() => {
-                document.body.style.animation = 'none';
-            }, 300);
-        });
-
-        // Detectar conexión de red
-        window.addEventListener('online', () => {
-            showCyberNotification('🌐 NEURAL NETWORK RESTORED', 'success');
-        });
-
-        window.addEventListener('offline', () => {
-            showCyberNotification('⚠️ NEURAL NETWORK DOWN', 'error');
-        });
-
-        // Efecto de entrada suave para elementos
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animation = 'formSlideUp 0.8s ease-out forwards';
-                }
-            });
-        });
-
-        document.querySelectorAll('.form-group').forEach(group => {
-            observer.observe(group);
-        });
-
-        // Prevenir inspección (opcional para tema cyberpunk)
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-                showCyberNotification('🔒 ACCESO DENEGADO | PROTOCOLO DE SEGURIDAD', 'error');
-            }
-        });
-
-        // Easter egg: Secuencia Konami
-        let konamiSequence = [];
-        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
-
-        document.addEventListener('keydown', function (e) {
-            konamiSequence.push(e.code);
-            if (konamiSequence.length > konamiCode.length) {
-                konamiSequence.shift();
-            }
-
-            if (JSON.stringify(konamiSequence) === JSON.stringify(konamiCode)) {
-                activateNexusMode();
-                konamiSequence = [];
-            }
-        });
-
-        function activateNexusMode() {
-            showCyberNotification('🔥 NEXUS MODE ACTIVATED | NEURAL OVERDRIVE', 'success');
-
-            // Efecto matrix
-            document.body.style.filter = 'hue-rotate(120deg) contrast(1.3) saturate(2)';
-
-            // Cambiar colores temporalmente
-            const loginContainer = document.querySelector('.login-container');
-            loginContainer.style.borderColor = 'rgba(255, 0, 255, 0.8)';
-            loginContainer.style.boxShadow = '0 30px 60px rgba(255, 0, 255, 0.4)';
-
-            // Crear lluvia de código
-            createCodeRain();
-
-            setTimeout(() => {
-                document.body.style.filter = 'none';
-                loginContainer.style.borderColor = 'rgba(0, 255, 255, 0.3)';
-                loginContainer.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.5)';
-                showCyberNotification('⚡ NEXUS MODE DEACTIVATED', 'info');
-            }, 8000);
-        }
-
-        function createCodeRain() {
-            const canvas = document.createElement('canvas');
-            canvas.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 5;
-                opacity: 0.4;
-                pointer-events: none;
-            `;
-            document.body.appendChild(canvas);
-
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const matrix = 'NEXUS01010101ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*()[]{}';
-            const drops = [];
-
-            for (let x = 0; x < canvas.width / 12; x++) {
-                drops[x] = 1;
-            }
-
-            function drawCodeRain() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = '#00ffff';
-                ctx.font = '12px Orbitron';
-
-                for (let i = 0; i < drops.length; i++) {
-                    const text = matrix[Math.floor(Math.random() * matrix.length)];
-                    ctx.fillText(text, i * 12, drops[i] * 12);
-
-                    if (drops[i] * 12 > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
-            }
-
-            const rainInterval = setInterval(drawCodeRain, 40);
-
-            setTimeout(() => {
-                clearInterval(rainInterval);
-                if (document.body.contains(canvas)) {
-                    document.body.removeChild(canvas);
-                }
-            }, 8000);
-        }
-
-        // Música ambiente cyberpunk (sin audio real, solo efectos visuales)
-        function simulateCyberAmbience() {
-            setInterval(() => {
-                const intensity = Math.random();
-                if (intensity > 0.8) {
-                    // Efecto de pulso en el container
-                    const container = document.querySelector('.login-container');
-                    container.style.transform = 'scale(1.01)';
-                    setTimeout(() => {
-                        container.style.transform = 'scale(1)';
-                    }, 100);
-                }
-            }, 2000);
-        }
-
-        simulateCyberAmbience();
-
-        console.log('🎮 NEXUS LOGIN READY | Neural interface online | Easter eggs active');
-        console.log('💡 TIP: Try Ctrl+Enter for neural boost, or discover the Konami code...');
     </script>
 </body>
 

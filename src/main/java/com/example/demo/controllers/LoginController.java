@@ -1,3 +1,4 @@
+
 package com.example.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.entity.Usuario;
 import com.example.demo.models.servicio.AutenticacionService;
 import com.example.demo.models.servicio.PasswordService;
+import com.example.demo.models.servicioImpl.SecurityService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +34,9 @@ public class LoginController {
     private PasswordService passwordService;
 
     @Autowired
+    private SecurityService securityService;
+
+    @Autowired
     private HttpServletRequest request;
 
     @Autowired
@@ -43,39 +47,110 @@ public class LoginController {
         return "redirect:/login";
     }
 
-    @GetMapping("/login")
-    public String mostrarLogin() {
-        return "/login";
+@GetMapping("/login")
+public String mostrarLogin(HttpServletRequest request, Model model) {
+    String clientIP = getClientIP(request);
+
+    if (securityService.isBlocked(clientIP)) {
+        long tiempoRestante = securityService.getRemainingLockoutTime(clientIP);
+        model.addAttribute("error", 
+            String.format("🚫 IP bloqueada por múltiples intentos fallidos. " +
+            "Tiempo restante: %d minutos", tiempoRestante));
+        model.addAttribute("isBlocked", true);
+        model.addAttribute("tiempoRestante", tiempoRestante);
+        System.out.println("🚨 Intento de acceso desde IP bloqueada: " + clientIP);
+    } else {
+        int intentosRestantes = securityService.getRemainingAttempts(clientIP);
+        model.addAttribute("intentosRestantes", intentosRestantes);
+        model.addAttribute("showWarning", intentosRestantes < 5);
+        
+        model.addAttribute("isBlocked", false);
     }
 
+    return "login";
+}
+
+
     @GetMapping("/registro")
-    public String mostrarRegistro() {
+    public String mostrarRegistro(HttpServletRequest request, Model model) {
+        String clientIP = getClientIP(request);
+        
+        // 🔒 OPCIONAL: También verificar bloqueo en registro
+        if (securityService.isBlocked(clientIP)) {
+            long tiempoRestante = securityService.getRemainingLockoutTime(clientIP);
+            model.addAttribute("error", 
+                String.format("IP temporalmente bloqueada. Intente en %d minutos", tiempoRestante));
+            model.addAttribute("isBlocked", true);
+        }
+        
         return "registro";
     }
 
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String user_name,
                                 @RequestParam String clave,
+                                HttpServletRequest request,
                                 Model model,
                                 HttpSession session) {
-        System.out.println("🔐 Procesando login para: " + user_name);
+        
+        String clientIP = getClientIP(request);
+        System.out.println("🔐 Procesando login para: " + user_name + " desde IP: " + clientIP);
+        
+        // 🔒 PASO 1: VERIFICAR SI LA IP ESTÁ BLOQUEADA
+        if (securityService.isBlocked(clientIP)) {
+            long tiempoRestante = securityService.getRemainingLockoutTime(clientIP);
+            model.addAttribute("error", 
+                String.format("🚫 IP bloqueada por intentos fallidos. " +
+                "Intente nuevamente en %d minutos", tiempoRestante));
+            model.addAttribute("isBlocked", true);
+            model.addAttribute("tiempoRestante", tiempoRestante);
+            
+            System.out.println("🚨 Intento de login desde IP bloqueada: " + clientIP + 
+                             " - Usuario: " + user_name);
+
+            model.addAttribute("isBlocked", true);
+            model.addAttribute("tiempoRestante", tiempoRestante);
+            model.addAttribute("showWarning", false); // importante
+            model.addAttribute("intentosRestantes", 0);
+
+            return "login";
+        }
+        
+        // 🔒 PASO 2: VALIDACIONES BÁSICAS
+        if (user_name == null || user_name.trim().isEmpty() || 
+            clave == null || clave.length() < 3) {
+            
+            securityService.recordFailedAttempt(clientIP);
+            model.addAttribute("error", "Credenciales inválidas");
+            model.addAttribute("intentosRestantes", securityService.getRemainingAttempts(clientIP));
+            
+            System.out.println("⚠️ Credenciales inválidas desde IP: " + clientIP);
+            model.addAttribute("isBlocked", false);
+            model.addAttribute("showWarning", true);
+            model.addAttribute("intentosRestantes", securityService.getRemainingAttempts(clientIP));
+
+            return "login";
+        }
         
         try {
+            // 🔒 PASO 3: INTENTAR AUTENTICACIÓN
+            Optional<Usuario> usuarioOpt = null;
+            boolean loginExitoso = false;
+            
             // 🔐 PRIMERO: Intentar autenticación con contraseña encriptada
-            Optional<Usuario> usuarioOpt = autenticacionService.autenticarConEncriptacion(user_name, clave);
+            usuarioOpt = autenticacionService.autenticarConEncriptacion(user_name, clave);
             
             if (usuarioOpt.isPresent()) {
-                // ✅ Login exitoso con contraseña encriptada
-                Usuario usuario = usuarioOpt.get();
-                return procesarLoginExitoso(usuario, model, session, user_name);
-                
+                loginExitoso = true;
+                System.out.println("✅ Autenticación exitosa con contraseña encriptada para: " + user_name);
             } else {
                 // 🔄 FALLBACK: Intentar autenticación tradicional para usuarios no migrados
                 System.out.println("🔄 Probando autenticación tradicional para: " + user_name);
-                Optional<Usuario> usuarioTradicionalOpt = autenticacionService.autenticar(user_name, clave);
+                usuarioOpt = autenticacionService.autenticar(user_name, clave);
                 
-                if (usuarioTradicionalOpt.isPresent()) {
-                    Usuario usuario = usuarioTradicionalOpt.get();
+                if (usuarioOpt.isPresent()) {
+                    loginExitoso = true;
+                    Usuario usuario = usuarioOpt.get();
                     
                     // 🔧 MIGRAR CONTRASEÑA A FORMATO ENCRIPTADO
                     System.out.println("🔧 Migrando contraseña a formato encriptado para: " + user_name);
@@ -87,39 +162,89 @@ public class LoginController {
                     } catch (Exception e) {
                         System.out.println("⚠️ Error al migrar contraseña para " + user_name + ": " + e.getMessage());
                     }
-                    
-                    return procesarLoginExitoso(usuario, model, session, user_name);
-                    
-                } else {
-                    System.out.println("❌ Login fallido para: " + user_name);
-                    model.addAttribute("error", "Usuario o contraseña incorrectos");
-                    return "login";
                 }
             }
+            
+            if (loginExitoso && usuarioOpt.isPresent()) {
+                Usuario usuario = usuarioOpt.get();
+                
+                // 🔒 VERIFICAR ESTADO DEL USUARIO
+                if (!"ACTIVO".equals(usuario.getEstado())) {
+                    securityService.recordFailedAttempt(clientIP);
+                    model.addAttribute("error", "Cuenta desactivada");
+                    model.addAttribute("intentosRestantes", securityService.getRemainingAttempts(clientIP));
+                    
+                    System.out.println("⚠️ Intento de login con cuenta desactivada: " + user_name + " desde IP: " + clientIP);
+                    return "login";
+                }
+                
+                // 🔒 PASO 4: LOGIN EXITOSO - LIMPIAR INTENTOS FALLIDOS
+                securityService.recordSuccessfulLogin(clientIP);
+                System.out.println("✅ Login exitoso para: " + user_name + " desde IP: " + clientIP + 
+                                 " - Intentos fallidos eliminados");
+                
+                return procesarLoginExitoso(usuario, model, session, user_name, clientIP);
+                
+            } else {
+                // 🔒 PASO 5: LOGIN FALLIDO - REGISTRAR INTENTO
+                securityService.recordFailedAttempt(clientIP);
+                
+                int intentosRestantes = securityService.getRemainingAttempts(clientIP);
+                
+                System.out.println("❌ Login fallido para: " + user_name + " desde IP: " + clientIP + 
+                                 ". Intentos restantes: " + intentosRestantes);
+                
+                if (intentosRestantes > 0) {
+                    model.addAttribute("error", String.format("Credenciales incorrectas. Te quedan %d intentos", intentosRestantes));
+                    model.addAttribute("intentosRestantes", intentosRestantes);
+                    model.addAttribute("showWarning", true);
+                    model.addAttribute("isBlocked", false);
+
+
+                } else {
+                    long tiempoBloqueo = 60L; // o el valor dinámico que uses
+                    model.addAttribute("error", String.format(
+                    "🚫 Seguridad activada: tu IP ha sido bloqueada por %d minutos debido a múltiples intentos fallidos.", 
+                    tiempoBloqueo));
+                    model.addAttribute("isBlocked", true);
+                    model.addAttribute("tiempoRestante", tiempoBloqueo);
+                }
+
+                
+                return "login";
+            }
+            
         } catch (Exception e) {
-            System.out.println("❌ Error en autenticación para " + user_name + ": " + e.getMessage());
+            // 🔒 ERROR EN AUTENTICACIÓN - REGISTRAR COMO INTENTO FALLIDO
+            securityService.recordFailedAttempt(clientIP);
+            
+            System.out.println("❌ Error en autenticación para " + user_name + " desde IP " + clientIP + ": " + e.getMessage());
+            e.printStackTrace();
+            
             model.addAttribute("error", "Error en el proceso de autenticación");
+            model.addAttribute("intentosRestantes", securityService.getRemainingAttempts(clientIP));
+
+            model.addAttribute("isBlocked", false);
+            model.addAttribute("showWarning", true);
+            model.addAttribute("intentosRestantes", securityService.getRemainingAttempts(clientIP));
+
             return "login";
         }
     }
-    private Collection<? extends GrantedAuthority> mapearRoles(Usuario usuario) {
-        if (usuario.getRol() != null) {
-            return List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre()));
-        } else {
-            return List.of(); // Sin rol asignado
-        }
-    }
-    
+
     /**
      * 🔧 Método auxiliar para procesar login exitoso
      */
-    private String procesarLoginExitoso(Usuario usuario, Model model, HttpSession session, String user_name) {
+    private String procesarLoginExitoso(Usuario usuario, Model model, HttpSession session, 
+                                       String user_name, String clientIP) {
         String token = autenticacionService.generarTokenParaUsuario(usuario);
         
-        // 🔥 GUARDAR EN SESIÓN
+        // 🔥 GUARDAR EN SESIÓN CON INFORMACIÓN DE SEGURIDAD
         session.setAttribute("userName", usuario.getUser_name());
         session.setAttribute("userToken", token);
         session.setAttribute("userId", usuario.getIdUsuario());
+        session.setAttribute("clientIP", clientIP); // 🔒 Guardar IP para validación posterior
+        session.setAttribute("loginTime", System.currentTimeMillis()); // 🔒 Timestamp del login
         
         model.addAttribute("usuario", usuario);
         model.addAttribute("token", token);
@@ -137,29 +262,42 @@ public class LoginController {
         boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
 
         if (isAdmin) {
-            System.out.println("👑 Login exitoso para ADMINISTRADOR: " + user_name);
+            System.out.println("👑 Login exitoso para ADMINISTRADOR: " + user_name + " desde IP: " + clientIP);
             return "redirect:/dashboard";
         } else {
-            System.out.println("✅ Login exitoso para USUARIO: " + user_name);
+            System.out.println("✅ Login exitoso para USUARIO: " + user_name + " desde IP: " + clientIP);
             return "redirect:/control";
         }
     }
 
-
-    
-
-
+    private Collection<? extends GrantedAuthority> mapearRoles(Usuario usuario) {
+        if (usuario.getRol() != null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre()));
+        } else {
+            return List.of(); // Sin rol asignado
+        }
+    }
 
     @PostMapping("/registro")
     public String procesarRegistro(@RequestParam String user_name,
                                    @RequestParam String clave,
                                    @RequestParam String confirmarClave,
+                                   HttpServletRequest request,
                                    Model model,
                                    HttpSession session) {
         
-        System.out.println("📝 Procesando registro para: " + user_name);
+        String clientIP = getClientIP(request);
+        System.out.println("📝 Procesando registro para: " + user_name + " desde IP: " + clientIP);
         
-        // Validaciones básicas
+        // 🔒 VERIFICAR SI LA IP ESTÁ BLOQUEADA (opcional para registro)
+        if (securityService.isBlocked(clientIP)) {
+            long tiempoRestante = securityService.getRemainingLockoutTime(clientIP);
+            model.addAttribute("error", 
+                String.format("IP temporalmente bloqueada. Intente en %d minutos", tiempoRestante));
+            return "registro";
+        }
+        
+        // Validaciones básicas existentes...
         if (user_name == null || user_name.trim().isEmpty()) {
             model.addAttribute("error", "El nombre de usuario es obligatorio");
             return "registro";
@@ -194,14 +332,17 @@ public class LoginController {
             session.setAttribute("userName", nuevoUsuario.getUser_name());
             session.setAttribute("userToken", nuevoUsuario.getToken());
             session.setAttribute("userId", nuevoUsuario.getIdUsuario());
+            session.setAttribute("clientIP", clientIP); // 🔒 Guardar IP
+            session.setAttribute("loginTime", System.currentTimeMillis()); // 🔒 Timestamp
             
             model.addAttribute("usuario", nuevoUsuario);
             model.addAttribute("token", nuevoUsuario.getToken());
             model.addAttribute("mensaje", "¡Registro exitoso! Bienvenido " + user_name);
             
-            System.out.println("✅ Registro exitoso para: " + user_name + " con ID: " + nuevoUsuario.getIdUsuario());
+            System.out.println("✅ Registro exitoso para: " + user_name + " con ID: " + nuevoUsuario.getIdUsuario() + 
+                             " desde IP: " + clientIP);
             
-            // 🚀 Los usuarios recién registrados van al control ESP32 (son usuarios regulares por defecto)
+            // 🚀 Los usuarios recién registrados van al control ESP32
             return "redirect:/control";
             
         } catch (Exception e) {
@@ -213,7 +354,13 @@ public class LoginController {
     }
 
     @GetMapping("/validar")
-    public String validarToken(@RequestParam String token, Model model, HttpSession session) {
+    public String validarToken(@RequestParam String token, 
+                               HttpServletRequest request,
+                               Model model, 
+                               HttpSession session) {
+        
+        String clientIP = getClientIP(request);
+        
         Optional<Usuario> usuarioOpt = autenticacionService.validarToken(token);
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
@@ -222,6 +369,8 @@ public class LoginController {
             session.setAttribute("userName", usuario.getUser_name());
             session.setAttribute("userToken", token);
             session.setAttribute("userId", usuario.getIdUsuario());
+            session.setAttribute("clientIP", clientIP); // 🔒 Guardar IP
+            session.setAttribute("loginTime", System.currentTimeMillis()); // 🔒 Timestamp
             
             model.addAttribute("mensaje", "Token válido. Bienvenido " + usuario.getUser_name());
             model.addAttribute("usuario", usuario);
@@ -230,10 +379,10 @@ public class LoginController {
             boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
             
             if (isAdmin) {
-                System.out.println("👑 Token válido para administrador: " + usuario.getUser_name());
+                System.out.println("👑 Token válido para administrador: " + usuario.getUser_name() + " desde IP: " + clientIP);
                 return "redirect:/dashboard";
             } else {
-                System.out.println("✅ Token válido para usuario: " + usuario.getUser_name());
+                System.out.println("✅ Token válido para usuario: " + usuario.getUser_name() + " desde IP: " + clientIP);
                 return "redirect:/control";
             }
         } else {
@@ -243,8 +392,14 @@ public class LoginController {
     }
 
     @PostMapping("/logout")
-    public String cerrarSesion(@RequestParam String user_name, Model model, HttpSession session) {
-        System.out.println("🚪 Cerrando sesión para: " + user_name);
+    public String cerrarSesion(@RequestParam String user_name, 
+                               HttpServletRequest request,
+                               Model model, 
+                               HttpSession session) {
+        
+        String clientIP = getClientIP(request);
+        System.out.println("🚪 Cerrando sesión para: " + user_name + " desde IP: " + clientIP);
+        
         autenticacionService.cerrarSesion(user_name);
         session.invalidate(); // Limpiar sesión completa
         model.addAttribute("mensaje", "Sesión cerrada correctamente");
@@ -252,8 +407,132 @@ public class LoginController {
     }
 
     /**
-     * Endpoint especial para cambiar entre vistas (útil para testing)
+     * 🔒 MÉTODO PARA OBTENER LA IP REAL DEL CLIENTE
      */
+    private String getClientIP(HttpServletRequest request) {
+        // Headers que pueden contener la IP real del cliente
+        String[] headerNames = {
+            "X-Forwarded-For",
+            "X-Real-IP", 
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED",
+            "HTTP_X_CLUSTER_CLIENT_IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR",
+            "HTTP_FORWARDED"
+        };
+        
+        for (String header : headerNames) {
+            String ip = request.getHeader(header);
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                // Si hay múltiples IPs, tomar la primera
+                return ip.split(",")[0].trim();
+            }
+        }
+        
+        // Si no se encuentra en los headers, usar la IP del request
+        return request.getRemoteAddr();
+    }
+
+    // ========== ENDPOINTS DE ADMINISTRACIÓN PARA SEGURIDAD ==========
+    
+    /**
+     * 🔒 Endpoint para que los administradores vean el estado de seguridad
+     */
+    @GetMapping("/admin/security-status")
+    @ResponseBody
+    public Object getSecurityStatus(HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        String userToken = (String) session.getAttribute("userToken");
+        
+        if (userName == null || userToken == null) {
+            return "❌ No autorizado - Sin sesión activa";
+        }
+        
+        // Verificar si es admin
+        Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
+        if (usuarioOpt.isEmpty()) {
+            return "❌ Token inválido";
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
+        
+        if (!isAdmin) {
+            return "❌ Acceso denegado - Se requieren permisos de administrador";
+        }
+        
+        return securityService.getSecurityStats();
+    }
+    
+    /**
+     * 🔒 Endpoint para desbloquear una IP manualmente (solo administradores)
+     */
+    @PostMapping("/admin/unblock-ip")
+    @ResponseBody
+    public String unblockIP(@RequestParam String ip, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        String userToken = (String) session.getAttribute("userToken");
+        
+        if (userName == null || userToken == null) {
+            return "❌ No autorizado - Sin sesión activa";
+        }
+        
+        // Verificar si es admin
+        Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
+        if (usuarioOpt.isEmpty()) {
+            return "❌ Token inválido";
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
+        
+        if (!isAdmin) {
+            return "❌ Acceso denegado - Se requieren permisos de administrador";
+        }
+        
+        boolean success = securityService.unblockIP(ip);
+        if (success) {
+            System.out.println("🔓 Admin " + userName + " desbloqueó IP: " + ip);
+            return "✅ IP " + ip + " desbloqueada exitosamente";
+        } else {
+            return "⚠️ IP " + ip + " no estaba bloqueada";
+        }
+    }
+
+    /**
+     * 🔒 Endpoint para obtener información de una IP específica
+     */
+    @GetMapping("/admin/ip-status")
+    @ResponseBody
+    public String getIPStatus(@RequestParam String ip, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        String userToken = (String) session.getAttribute("userToken");
+        
+        if (userName == null || userToken == null) {
+            return "❌ No autorizado";
+        }
+        
+        // Verificar si es admin
+        Optional<Usuario> usuarioOpt = autenticacionService.validarToken(userToken);
+        if (usuarioOpt.isEmpty()) {
+            return "❌ Token inválido";
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
+        
+        if (!isAdmin) {
+            return "❌ Acceso denegado";
+        }
+        
+        return securityService.getIPStatus(ip);
+    }
+
+    // ========== MÉTODOS EXISTENTES ACTUALIZADOS ==========
+
     @GetMapping("/switch-view")
     public String switchView(@RequestParam(defaultValue = "auto") String view, 
                            HttpSession session, Model model) {
@@ -296,7 +575,6 @@ public class LoginController {
             
             case "auto":
             default:
-                // Comportamiento automático basado en el rol
                 if (isAdmin) {
                     return "redirect:/dashboard";
                 } else {
@@ -305,15 +583,15 @@ public class LoginController {
         }
     }
 
-    /**
-     * Método auxiliar para debugging - mostrar información de sesión
-     */
     @GetMapping("/session-info")
     @ResponseBody
-    public String sessionInfo(HttpSession session) {
+    public String sessionInfo(HttpSession session, HttpServletRequest request) {
         String userName = (String) session.getAttribute("userName");
         String userToken = (String) session.getAttribute("userToken");
         Long userId = (Long) session.getAttribute("userId");
+        String sessionIP = (String) session.getAttribute("clientIP");
+        Long loginTime = (Long) session.getAttribute("loginTime");
+        String currentIP = getClientIP(request);
         
         if (userName == null) {
             return "❌ No hay sesión activa";
@@ -326,6 +604,12 @@ public class LoginController {
         
         Usuario usuario = usuarioOpt.get();
         boolean isAdmin = usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre());
+        
+        // 🔒 INFORMACIÓN DE SEGURIDAD
+        String securityInfo = securityService.getIPStatus(currentIP);
+        String ipMatch = sessionIP != null && sessionIP.equals(currentIP) ? "✅ COINCIDE" : "⚠️ DIFERENTE";
+        String sessionDuration = loginTime != null ? 
+            String.valueOf((System.currentTimeMillis() - loginTime) / (60 * 1000)) + " minutos" : "Desconocido";
         
         // 🔐 MOSTRAR INFORMACIÓN DE ENCRIPTACIÓN EN DEBUG
         String passwordInfo = "No disponible";
@@ -346,8 +630,8 @@ public class LoginController {
         }
         
         return String.format("""
-            📊 INFORMACIÓN DE SESIÓN:
-            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+            📊 INFORMACIÓN DE SESIÓN CON SEGURIDAD:
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             👤 Usuario: %s
             🆔 ID: %d
             🎭 Rol: %s
@@ -357,7 +641,14 @@ public class LoginController {
             📅 Fecha Registro: %s
             🔄 Última Modificación: %s
             📊 Estado: %s
-            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            🔒 INFORMACIÓN DE SEGURIDAD:
+            🌐 IP Sesión: %s
+            🌐 IP Actual: %s
+            🔍 Verificación IP: %s
+            ⏱️ Duración Sesión: %s
+            🛡️ Estado Seguridad: %s
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             🌐 Session ID: %s
             """, 
             userName,
@@ -369,13 +660,15 @@ public class LoginController {
             usuario.getFechaRegistro(),
             usuario.getFechaModificacion(),
             usuario.getEstado(),
+            sessionIP != null ? sessionIP : "No registrada",
+            currentIP,
+            ipMatch,
+            sessionDuration,
+            securityInfo,
             session.getId()
         );
     }
     
-    /**
-     * 🔧 ENDPOINT PARA MIGRAR CONTRASEÑAS DE USUARIOS EXISTENTES
-     */
     @PostMapping("/admin/migrate-passwords")
     @ResponseBody
     public String migratePasswords(HttpSession session) {
