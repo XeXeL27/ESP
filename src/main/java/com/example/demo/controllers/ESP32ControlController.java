@@ -14,10 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+
 @Controller
 @RequestMapping("/control")
 public class ESP32ControlController {
-
+    
     @Autowired
     private AutenticacionService autenticacionService;
     

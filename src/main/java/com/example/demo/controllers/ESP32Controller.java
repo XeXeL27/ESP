@@ -18,13 +18,15 @@ import com.example.demo.models.entity.LogAcceso;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/esp32")
 @CrossOrigin(origins = "*")
 public class ESP32Controller {
-    
+    private final Map<String, Long> ultimoAccesoPorUsuario = new ConcurrentHashMap<>();
     @Autowired
     private ESP32Service esp32Service;
     
@@ -94,48 +96,43 @@ public class ESP32Controller {
         return request.getRemoteAddr();
     }
 
-    @PostMapping("/abrir-puerta")
-    public ResponseEntity<String> abrirPuerta(HttpSession session, HttpServletRequest request) {
-        // 🔐 VERIFICAR AUTENTICACIÓN
-        if (!isAuthenticated(session)) {
-            registrarLog("ANONIMO", "ABRIR_PUERTA", "ERROR", "Sesión no válida", request);
-            return ResponseEntity.status(401).body("❌ Sesión no válida - Inicia sesión");
-        }
-        
-        String userName = (String) session.getAttribute("userName");
-        System.out.println("🚪 Usuario " + userName + " solicita abrir puerta");
-        
-        try {
-            boolean resultado = esp32Service.enviarComando("ABRIR_PUERTA");
-            
-            if (resultado) {
-                System.out.println("✅ Puerta abierta exitosamente por: " + userName);
-                
-                // Registrar éxito en logs
-                registrarLog(userName, "ABRIR_PUERTA", "EXITOSO", 
-                           "Comando enviado exitosamente al ESP32", request);
-                
-                return ResponseEntity.ok("🚪 Comando ABRIR_PUERTA enviado exitosamente");
-            } else {
-                System.out.println("❌ Error al abrir puerta para: " + userName);
-                
-                // Registrar fallo en logs
-                registrarLog(userName, "ABRIR_PUERTA", "FALLIDO", 
-                           "ESP32 no respondió correctamente", request);
-                
-                return ResponseEntity.badRequest().body("❌ Error al enviar comando ABRIR_PUERTA");
-            }
-        } catch (Exception e) {
-            System.out.println("💥 Error crítico al abrir puerta: " + e.getMessage());
-            
-            // Registrar error crítico en logs
-            registrarLog(userName, "ABRIR_PUERTA", "ERROR", 
-                       "Error crítico: " + e.getMessage(), request);
-            
-            return ResponseEntity.internalServerError()
-                .body("💥 Error interno: " + e.getMessage());
-        }
+@PostMapping("/abrir-puerta")
+public ResponseEntity<String> abrirPuerta(HttpSession session, HttpServletRequest request) {
+    if (!isAuthenticated(session)) {
+        registrarLog("ANONIMO", "ABRIR_PUERTA", "ERROR", "Sesión no válida", request);
+        return ResponseEntity.status(401).body("❌ Sesión no válida - Inicia sesión");
     }
+
+    String userName = (String) session.getAttribute("userName");
+
+    // Protección de intervalo mínimo de 3 segundos
+    long ahora = System.currentTimeMillis();
+    long ultimo = ultimoAccesoPorUsuario.getOrDefault(userName, 0L);
+    if (ahora - ultimo < 3000) {
+        registrarLog(userName, "ABRIR_PUERTA", "IGNORADO", "Intento antes de los 3 segundos", request);
+        return ResponseEntity.status(429).body("⚠️ Espera 3 segundos antes de volver a abrir la puerta");
+    }
+
+    ultimoAccesoPorUsuario.put(userName, ahora);
+    System.out.println("🚪 Usuario " + userName + " solicita abrir puerta");
+
+    try {
+        boolean resultado = esp32Service.enviarComando("ABRIR_PUERTA");
+
+        if (resultado) {
+            registrarLog(userName, "ABRIR_PUERTA", "EXITOSO", "Comando enviado al ESP32", request);
+            return ResponseEntity.ok("🚪 Comando ABRIR_PUERTA enviado exitosamente");
+        } else {
+            registrarLog(userName, "ABRIR_PUERTA", "FALLIDO", "ESP32 no respondió correctamente", request);
+            return ResponseEntity.badRequest().body("❌ Error al enviar comando ABRIR_PUERTA");
+        }
+
+    } catch (Exception e) {
+        registrarLog(userName, "ABRIR_PUERTA", "ERROR", "Error crítico: " + e.getMessage(), request);
+        return ResponseEntity.internalServerError().body("💥 Error interno: " + e.getMessage());
+    }
+}
+
 
     @PostMapping("/cerrar-puerta")
     public ResponseEntity<String> cerrarPuerta(HttpSession session, HttpServletRequest request) {

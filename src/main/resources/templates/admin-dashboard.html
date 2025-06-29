@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Administrativo - Sistema ESP</title>
+    <title>NEXUS ADMIN - Sistema ESP</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -13,149 +15,399 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        /* Fondo cyberpunk animado */
+        .cyber-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 100, 0, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            z-index: -2;
+        }
+
+        /* Grid hexagonal animado */
+        .hex-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image:
+                linear-gradient(30deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(150deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(30deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(150deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+            z-index: -1;
+            animation: hexFlow 20s linear infinite;
+        }
+
+        @keyframes hexFlow {
+            0% {
+                transform: translateY(0px);
+            }
+
+            100% {
+                transform: translateY(140px);
+            }
+        }
+
+        /* Líneas de circuito */
+        .circuit-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             overflow: hidden;
-            animation: slideIn 0.8s ease-out;
         }
 
-        @keyframes slideIn {
-            from {
+        .circuit-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            height: 1px;
+            animation: circuitFlow 8s linear infinite;
+            opacity: 0.5;
+        }
+
+        .circuit-line:nth-child(1) {
+            top: 10%;
+            width: 300px;
+            left: -300px;
+            animation-delay: 0s;
+        }
+
+        .circuit-line:nth-child(2) {
+            top: 25%;
+            width: 200px;
+            left: -200px;
+            animation-delay: 2s;
+        }
+
+        .circuit-line:nth-child(3) {
+            top: 40%;
+            width: 250px;
+            left: -250px;
+            animation-delay: 4s;
+        }
+
+        .circuit-line:nth-child(4) {
+            top: 55%;
+            width: 180px;
+            left: -180px;
+            animation-delay: 6s;
+        }
+
+        .circuit-line:nth-child(5) {
+            top: 70%;
+            width: 220px;
+            left: -220px;
+            animation-delay: 1s;
+        }
+
+        .circuit-line:nth-child(6) {
+            top: 85%;
+            width: 280px;
+            left: -280px;
+            animation-delay: 3s;
+        }
+
+        @keyframes circuitFlow {
+            0% {
+                left: -300px;
                 opacity: 0;
-                transform: translateY(30px);
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            20% {
+                opacity: 0.5;
+            }
+
+            80% {
+                opacity: 0.5;
+            }
+
+            100% {
+                left: 100vw;
+                opacity: 0;
             }
         }
 
+        /* Contenedor principal */
+        .dashboard-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            backdrop-filter: blur(1px);
+        }
+
+        /* Header cyberpunk */
         .header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 25px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+            padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: headerScan 4s ease-in-out infinite;
+        }
+
+        @keyframes headerScan {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         .header p {
             font-size: 1.2rem;
-            opacity: 0.9;
+            color: rgba(0, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 500;
         }
 
+        /* Sección de estadísticas */
         .stats-section {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 25px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-bottom: 1px solid #dee2e6;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(26, 26, 46, 0.3));
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
         }
 
         .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(145deg, rgba(0, 255, 255, 0.05), rgba(255, 0, 128, 0.05));
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.05), transparent);
+            animation: cardGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes cardGlow {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(45deg, #00ffff, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
         }
 
         .stat-label {
-            color: #6c757d;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
             text-transform: uppercase;
             font-size: 0.9rem;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
         }
 
+        /* Sección de controles */
         .controls-section {
-            padding: 25px;
-            border-bottom: 1px solid #dee2e6;
+            padding: 30px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(26, 26, 46, 0.2));
         }
 
         .search-container {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-bottom: 25px;
             align-items: center;
             flex-wrap: wrap;
         }
 
         .search-input {
             flex: 1;
-            min-width: 250px;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+            min-width: 300px;
+            padding: 15px 20px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #00ffff;
             font-size: 16px;
+            font-family: 'Rajdhani', sans-serif;
             outline: none;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input::placeholder {
+            color: rgba(0, 255, 255, 0.6);
         }
 
         .search-input:focus {
-            border-color: #667eea;
+            border-color: rgba(0, 255, 255, 0.7);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.6);
         }
 
+        /* Botones cyberpunk */
         .btn {
             padding: 12px 20px;
-            border: none;
+            border: 2px solid transparent;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
             text-align: center;
+            font-family: 'Rajdhani', sans-serif;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2));
+            border-color: rgba(0, 255, 255, 0.5);
+            color: #00ffff;
         }
 
         .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 150, 255, 0.3));
+            border-color: rgba(0, 255, 255, 0.8);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.3);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 100, 0.2));
+            border-color: rgba(0, 255, 0, 0.5);
+            color: #00ff00;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(0, 200, 100, 0.3));
+            border-color: rgba(0, 255, 0, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 0, 0.3);
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #dc3545, #fd7e14);
-            color: white;
+            background: linear-gradient(135deg, rgba(255, 0, 100, 0.2), rgba(255, 0, 0, 0.2));
+            border-color: rgba(255, 0, 100, 0.5);
+            color: #ff0066;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, rgba(255, 0, 100, 0.3), rgba(255, 0, 0, 0.3));
+            border-color: rgba(255, 0, 100, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 0, 100, 0.3);
         }
 
         .btn-small {
@@ -163,54 +415,117 @@
             font-size: 0.8rem;
         }
 
+        .btn-glow {
+            position: relative;
+            animation: btnPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes btnPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+            }
+        }
+
+        /* Tooltips cyberpunk */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 180px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 46, 0.9));
+            color: #00ffff;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -90px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Sección de usuarios */
         .users-section {
-            padding: 25px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(26, 26, 46, 0.3));
         }
 
         .users-table-container {
-            overflow-x: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
         }
 
         .users-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            background: rgba(0, 0, 0, 0.6);
         }
 
         .users-table th {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            color: #00ffff;
+            padding: 20px 15px;
             text-align: left;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             font-size: 0.9rem;
+            font-family: 'Orbitron', monospace;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
         }
 
         .users-table td {
             padding: 15px;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
             vertical-align: middle;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .users-table tr {
+            transition: all 0.3s ease;
         }
 
         .users-table tr:hover {
-            background-color: #f8f9fa;
+            background: linear-gradient(90deg, rgba(0, 255, 255, 0.05), rgba(255, 0, 128, 0.05));
+            box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.1);
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #00ffff, #ff0080);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            margin-right: 10px;
+            margin-right: 15px;
+            font-family: 'Orbitron', monospace;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
         }
 
         .user-info {
@@ -220,45 +535,68 @@
 
         .user-details h4 {
             margin: 0;
-            color: #333;
-            font-size: 1rem;
+            color: #00ffff;
+            font-size: 1.1rem;
+            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
 
         .user-details p {
-            margin: 2px 0 0 0;
-            color: #6c757d;
+            margin: 3px 0 0 0;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.85rem;
         }
 
+        /* Status badges */
         .status-badge {
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-family: 'Orbitron', monospace;
         }
 
         .status-active {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(0, 200, 100, 0.3));
+            color: #00ff00;
+            border: 1px solid rgba(0, 255, 0, 0.5);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+            }
         }
 
         .status-inactive {
-            background: linear-gradient(135deg, #dc3545, #fd7e14);
-            color: white;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(255, 100, 0, 0.3));
+            color: #ff4757;
+            border: 1px solid rgba(255, 0, 0, 0.5);
         }
 
+        /* Token display */
         .token-display {
             font-family: 'Courier New', monospace;
             font-size: 0.8rem;
-            background: #f8f9fa;
-            padding: 5px 8px;
-            border-radius: 5px;
-            max-width: 150px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #00ffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
         }
 
         .actions-cell {
@@ -266,58 +604,71 @@
         }
 
         .actions-cell .btn {
-            margin: 2px;
+            margin: 3px;
         }
 
+        /* No users message */
         .no-users {
             text-align: center;
-            padding: 50px;
-            color: #6c757d;
-            font-size: 1.1rem;
+            padding: 60px;
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 1.2rem;
         }
 
+        .no-users h3 {
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 15px;
+        }
+
+        /* Alerts */
         .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 30px;
             font-weight: 500;
+            border: 1px solid;
+            backdrop-filter: blur(15px);
         }
 
         .alert-success {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            color: #155724;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 100, 0.1));
+            border-color: rgba(0, 255, 0, 0.3);
+            color: #00ff88;
         }
 
         .alert-error {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(253, 126, 20, 0.1));
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #721c24;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(255, 100, 0, 0.1));
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #ff4757;
         }
 
+        /* Footer */
         .footer {
-            padding: 20px;
+            padding: 25px;
             text-align: center;
-            background: #f8f9fa;
-            color: #6c757d;
-            border-top: 1px solid #dee2e6;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(26, 26, 46, 0.6));
+            color: rgba(0, 255, 255, 0.7);
+            border-top: 2px solid rgba(0, 255, 255, 0.2);
+            font-family: 'Orbitron', monospace;
         }
 
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #667eea;
-            font-size: 1.1rem;
+            padding: 50px;
+            color: #00ffff;
+            font-size: 1.2rem;
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 3px solid rgba(0, 255, 255, 0.1);
+            border-top: 3px solid #00ffff;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -330,20 +681,63 @@
             }
         }
 
+        /* Partículas flotantes */
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float-particle 12s linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            background: rgba(255, 0, 128, 0.6);
+            animation-duration: 15s;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
         /* Responsive */
-        @media (max-width: 768px) {
-            .dashboard-container {
-                margin: 10px;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
+        @media (max-width: 1200px) {
             .stats-section {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 15px;
-                padding: 20px;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
             }
 
             .search-container {
@@ -357,7 +751,7 @@
 
             .users-table th,
             .users-table td {
-                padding: 10px 8px;
+                padding: 12px 8px;
                 font-size: 0.85rem;
             }
 
@@ -365,24 +759,68 @@
                 padding: 6px 10px;
                 font-size: 0.7rem;
             }
+
+            .stat-number {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-section {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <!-- Fondo cyberpunk -->
+    <div class="cyber-background"></div>
+
+    <!-- Grid hexagonal -->
+    <div class="hex-grid"></div>
+
+    <!-- Líneas de circuito -->
+    <div class="circuit-lines">
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+    </div>
+
+    <!-- Partículas flotantes -->
+    <div class="floating-particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 7s;"></div>
+    </div>
+
     <div class="dashboard-container">
         <!-- Header -->
         <div class="header">
-            <h1>🛡️ Panel de Administración</h1>
-            <p>Sistema ESP - Gestión de Usuarios</p>
+            <h1>🛡️ NEXUS ADMIN</h1>
+            <p>Sistema ESP - Control Total</p>
         </div>
 
         <!-- Mensajes -->
-        <div th:if="${mensaje}" class="alert alert-success" style="margin: 20px;">
+        <div th:if="${mensaje}" class="alert alert-success">
             <span th:text="${mensaje}"></span>
         </div>
 
-        <div th:if="${error}" class="alert alert-error" style="margin: 20px;">
+        <div th:if="${error}" class="alert alert-error">
             <span th:text="${error}"></span>
         </div>
 
@@ -390,56 +828,58 @@
         <div class="stats-section">
             <div class="stat-card">
                 <div class="stat-number" th:text="${totalUsuarios ?: 0}">0</div>
-                <div class="stat-label">Total Usuarios</div>
+                <div class="stat-label">Numero de usuarios</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" th:text="${usuariosActivos ?: 0}">0</div>
-                <div class="stat-label">Usuarios Activos</div>
+                <div class="stat-label">Usarios Activos</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" th:text="${usuariosConectados ?: 0}">0</div>
-                <div class="stat-label">Conectados</div>
+                <div class="stat-label">Agentes Conectados</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="currentTime">--:--</div>
-                <div class="stat-label">Hora Actual</div>
+                <div class="stat-label">Hora del Sistema</div>
             </div>
         </div>
 
         <!-- Controles -->
         <div class="controls-section">
             <div class="search-container">
-                <input type="text" class="search-input" id="searchInput"
-                    placeholder="🔍 Buscar usuarios por nombre, estado, rol...">
-                <button class="btn btn-success" onclick="crearNuevoUsuario()">👤 Crear Usuario</button>
-                <button class="btn btn-primary" onclick="refreshData()">🔄 Actualizar</button>
-                <a href="/logs" class="btn btn-primary" style="text-decoration: none;">📜 Ver Logs</a>
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 BUSCAR USUARIO...">
+                <button class="btn btn-success" onclick="crearNuevoUsuario()">👤 NUEVO USUARIO</button>
+                <button class="btn btn-primary" onclick="refreshData()">🔄 REFRESCAR PAGINA</button>
+                <div class="tooltip">
+                    <a href="/control" class="btn btn-primary btn-glow">🎛️ CONTROL NEXUS</a>
+                    <span class="tooltiptext">Access ESP32 Control Matrix</span>
+                </div>
+                <a href="/logs" class="btn btn-primary" style="text-decoration: none;">📜LOGS</a>
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <input type="hidden" name="user_name" th:value="${usuario.user_name}">
-                    <button type="submit" class="btn btn-danger">🚪 Cerrar Sesión</button>
+                    <button type="submit" class="btn btn-danger">🚪 DESCONECTAR</button>
                 </form>
             </div>
-
         </div>
 
         <!-- Tabla de Usuarios -->
         <div class="users-section">
             <div id="loadingIndicator" class="loading" style="display: none;">
                 <div class="spinner"></div>
-                <p>Cargando usuarios...</p>
+                <p>SCANNING NEURAL NETWORK...</p>
             </div>
 
             <div class="users-table-container" id="usersTableContainer">
                 <table class="users-table" th:if="${usuarios != null and not #lists.isEmpty(usuarios)}">
                     <thead>
                         <tr>
-                            <th>Usuario</th>
-                            <th>Estado</th>
-                            <th>Rol</th>
-                            <th>Token</th>
-                            <th>Fecha Registro</th>
-                            <th>Última Modificación</th>
-                            <th>Acciones</th>
+                            <th>USUARIO</th>
+                            <th>ESTADO</th>
+                            <th>ROL</th>
+                            <th>TOKEN</th>
+                            <th>FECHA DE INICIO</th>
+                            <th>ULTIMA SINCRONIZACION</th>
+                            <th>ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody">
@@ -453,49 +893,52 @@
                                         <p th:if="${user.persona != null}"
                                             th:text="${user.persona.nombre + ' ' + user.persona.paterno}">Nombre
                                             Completo</p>
-                                        <p th:if="${user.persona == null}">Usuario básico</p>
+                                        <p th:if="${user.persona == null}">Basic Neural Link</p>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <span class="status-badge"
                                     th:classappend="${user.estado == 'ACTIVO'} ? 'status-active' : 'status-inactive'"
-                                    th:text="${user.estado}">ACTIVO</span>
+                                    th:text="${user.estado == 'ACTIVO'} ? 'ONLINE' : 'OFFLINE'">ONLINE</span>
                             </td>
                             <td>
-                                <strong th:text="${user.rol != null ? user.rol.nombre : 'USUARIO'}">USUARIO</strong>
+                                <strong th:text="${user.rol != null ? user.rol.nombre : 'USER'}"
+                                    style="color: #00ffff; font-family: 'Orbitron', monospace;">USER</strong>
                             </td>
                             <td>
                                 <div class="token-display" th:if="${user.token != null}"
                                     th:text="${user.token.substring(0, 12) + '...'}">token123...</div>
-                                <span th:if="${user.token == null}" style="color: #dc3545; font-weight: 500;">Sin
-                                    token</span>
+                                <span th:if="${user.token == null}" style="color: #ff4757; font-weight: 500;">NO
+                                    KEY</span>
                             </td>
-                            <td th:text="${user.fechaRegistro}">2024-01-01</td>
-                            <td th:text="${user.fechaModificacion ?: 'Nunca'}">2024-01-01</td>
+                            <td th:text="${user.fechaRegistro}"
+                                style="font-family: 'Courier New', monospace; color: #00ffff;">2024-01-01</td>
+                            <td th:text="${user.fechaModificacion ?: 'NEVER'}"
+                                style="font-family: 'Courier New', monospace; color: #00ffff;">2024-01-01</td>
                             <td class="actions-cell">
                                 <button class="btn btn-primary btn-small"
-                                    th:onclick="'viewUser(' + ${user.idUsuario} + ')'">👁️ Ver</button>
+                                    th:onclick="'viewUser(' + ${user.idUsuario} + ')'">👁️ SCAN</button>
                                 <button class="btn btn-success btn-small" th:if="${user.estado == 'INACTIVO'}"
-                                    th:onclick="'activateUser(' + ${user.idUsuario} + ')'">✅ Activar</button>
+                                    th:onclick="'activateUser(' + ${user.idUsuario} + ')'">✅ ACTIVAR</button>
                                 <button class="btn btn-danger btn-small"
                                     th:if="${user.estado == 'ACTIVO' and user.user_name != usuario.user_name}"
-                                    th:onclick="'deactivateUser(' + ${user.idUsuario} + ')'">🚫 Desactivar</button>
+                                    th:onclick="'deactivateUser(' + ${user.idUsuario} + ')'">🚫 DESACTIVAR</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div th:if="${usuarios == null or #lists.isEmpty(usuarios)}" class="no-users">
-                    <h3>😔 No hay usuarios registrados</h3>
-                    <p>Aún no se han registrado usuarios en el sistema.</p>
+                    <h3>⚠️ NEURAL NETWORK EMPTY</h3>
+                    <p>No agents detected in the system matrix.</p>
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <p>Panel de Administración - Sistema ESP | Usuario: <strong th:text="${usuario.user_name}">Admin</strong>
+            <p>NEXUS CONTROL MATRIX | USUARIO: <strong th:text="${usuario.user_name}">ADMIN</strong> | ESTADO: CONNECTED
             </p>
         </div>
     </div>
@@ -513,9 +956,9 @@
 
         // Inicializar cuando se carga la página
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('🚀 Iniciando Dashboard Administrativo...');
-            console.log('Usuario actual:', currentUserName);
-            console.log('Total de usuarios cargados:', allUsers.length);
+            console.log('🚀 NEXUS ADMIN PROTOCOLO INICIADO...');
+            console.log('Agente neural actual:', currentUserName);
+            console.log('Enlaces neuronales detectados:', allUsers.length);
 
             try {
                 // Si allUsers es string, parsearlo
@@ -525,19 +968,25 @@
                     originalUsers = allUsers;
                 }
             } catch (e) {
-                console.error('Error parseando usuarios:', e);
+                console.error('Neural data parsing error:', e);
                 originalUsers = [];
             }
 
             // Configurar búsqueda
             setupSearch();
 
-            // Iniciar reloj
-            updateClock();
-            setInterval(updateClock, 1000);
+            // Iniciar reloj cyberpunk
+            updateCyberClock();
+            setInterval(updateCyberClock, 1000);
 
-            // Mostrar mensaje de bienvenida
+            // Mostrar mensaje de bienvenida cyberpunk
             showWelcomeMessage();
+
+            // Agregar partículas dinámicas
+            generateParticles();
+
+            // Efecto de escritura para elementos importantes
+            typewriterEffect();
         });
 
         // Configurar funcionalidad de búsqueda
@@ -547,6 +996,15 @@
                 searchInput.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase().trim();
                     filterUsers(searchTerm);
+                });
+
+                // Efecto de búsqueda cyberpunk
+                searchInput.addEventListener('focus', function () {
+                    this.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.5)';
+                });
+
+                searchInput.addEventListener('blur', function () {
+                    this.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.3)';
                 });
             }
         }
@@ -564,7 +1022,11 @@
                 const shouldShow = searchTerm === '' || text.includes(searchTerm);
 
                 row.style.display = shouldShow ? '' : 'none';
-                if (shouldShow) visibleCount++;
+                if (shouldShow) {
+                    visibleCount++;
+                    // Añadir efecto de aparición
+                    row.style.animation = 'slideInLeft 0.3s ease-out';
+                }
             }
 
             // Mostrar mensaje si no hay resultados
@@ -573,9 +1035,9 @@
                     const noResultsRow = document.createElement('tr');
                     noResultsRow.id = 'noResults';
                     noResultsRow.innerHTML = `
-                        <td colspan="7" style="text-align: center; padding: 30px; color: #6c757d;">
-                            <h4>🔍 No se encontraron usuarios</h4>
-                            <p>Intenta con otros términos de búsqueda</p>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #00ffff; font-family: 'Orbitron', monospace;">
+                            <h4>🔍 ESCANEO FALLIDO</h4>
+                            <p>No se encontraron agentes que coincidan con los parámetros de búsqueda</p>
                         </td>
                     `;
                     tableBody.appendChild(noResultsRow);
@@ -588,8 +1050,8 @@
             }
         }
 
-        // Actualizar reloj
-        function updateClock() {
+        // Actualizar reloj cyberpunk
+        function updateCyberClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('es-ES', {
                 hour: '2-digit',
@@ -602,7 +1064,7 @@
             }
         }
 
-        // Refrescar datos
+        // Refrescar datos con efecto cyberpunk
         async function refreshData() {
             const loadingIndicator = document.getElementById('loadingIndicator');
             const tableContainer = document.getElementById('usersTableContainer');
@@ -611,17 +1073,17 @@
             if (tableContainer) tableContainer.style.display = 'none';
 
             try {
-                showNotification('🔄 Actualizando datos...', 'info');
+                showCyberNotification('🔄 SCANNING NEURAL MATRIX...', 'info');
 
-                // Simular delay para mostrar loading
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Simular delay para mostrar loading cyberpunk
+                await new Promise(resolve => setTimeout(resolve, 1500));
 
                 // Recargar la página para obtener datos frescos
                 window.location.reload();
 
             } catch (error) {
-                console.error('Error actualizando datos:', error);
-                showNotification('❌ Error al actualizar datos', 'error');
+                console.error('Matrix refresh error:', error);
+                showCyberNotification('❌ ESCANEO FALLIDO', 'error');
 
                 if (loadingIndicator) loadingIndicator.style.display = 'none';
                 if (tableContainer) tableContainer.style.display = 'block';
@@ -630,20 +1092,24 @@
 
         // Crear nuevo usuario
         function crearNuevoUsuario() {
-            showNotification('🚀 Redirigiendo al formulario de creación de usuario...', 'info');
+            showCyberNotification('🚀 INICIALIZANDO PROTOCOLO DE NUEVO USUARIO...', 'info');
 
-            // Redirigir a la página de creación de usuario
-            window.location.href = '/admin/crear-usuario';
+            // Efecto de glitch antes de redireccionar
+            document.body.style.filter = 'hue-rotate(180deg)';
+            setTimeout(() => {
+                document.body.style.filter = 'none';
+                window.location.href = '/admin/crear-usuario';
+            }, 500);
         }
 
         // Activar usuario
         async function activateUser(userId) {
-            if (!confirm('¿Estás seguro de que quieres activar este usuario?')) {
+            if (!confirm('ACTIVATE NEURAL AGENT?\n\nThis will restore agent to active status.')) {
                 return;
             }
 
             try {
-                showNotification('🔄 Activando usuario...', 'info');
+                showCyberNotification('🔄 ACTIVATING NEURAL LINK...', 'info');
 
                 const response = await fetch(`/api/admin/users/${userId}/activate`, {
                     method: 'POST',
@@ -653,26 +1119,26 @@
                 });
 
                 if (response.ok) {
-                    showNotification('✅ Usuario activado exitosamente', 'success');
+                    showCyberNotification('✅ NEURAL AGENT ACTIVATED', 'success');
                     setTimeout(() => refreshData(), 1500);
                 } else {
                     const errorText = await response.text();
                     throw new Error(errorText);
                 }
             } catch (error) {
-                console.error('Error activando usuario:', error);
-                showNotification('❌ Error al activar usuario: ' + error.message, 'error');
+                console.error('Activation protocol failed:', error);
+                showCyberNotification('❌ ACTIVATION FAILED: ' + error.message, 'error');
             }
         }
 
         // Desactivar usuario
         async function deactivateUser(userId) {
-            if (!confirm('¿Estás seguro de que quieres desactivar este usuario?\n\nEsta acción cerrará su sesión y revocará su token.')) {
+            if (!confirm('⚠️ DISABLE NEURAL AGENT?\n\nThis will terminate agent connection and revoke neural key.')) {
                 return;
             }
 
             try {
-                showNotification('🔄 Desactivando usuario...', 'info');
+                showCyberNotification('🔄 DISABLING NEURAL LINK...', 'info');
 
                 const response = await fetch(`/api/admin/users/${userId}/deactivate`, {
                     method: 'POST',
@@ -682,48 +1148,64 @@
                 });
 
                 if (response.ok) {
-                    showNotification('✅ Usuario desactivado exitosamente', 'success');
+                    showCyberNotification('✅ NEURAL AGENT DISABLED', 'success');
                     setTimeout(() => refreshData(), 1500);
                 } else {
                     const errorText = await response.text();
                     throw new Error(errorText);
                 }
             } catch (error) {
-                console.error('Error desactivando usuario:', error);
-                showNotification('❌ Error al desactivar usuario: ' + error.message, 'error');
+                console.error('Deactivation protocol failed:', error);
+                showCyberNotification('❌ DEACTIVATION FAILED: ' + error.message, 'error');
             }
         }
 
-        // Sistema de notificaciones
-        function showNotification(message, type = 'info') {
+        // Ver usuario (placeholder)
+        function viewUser(userId) {
+            showCyberNotification('🔍 SCANNING NEURAL AGENT DATA...', 'info');
+            // Aquí se puede implementar la funcionalidad de ver usuario
+        }
+
+        // Sistema de notificaciones cyberpunk
+        function showCyberNotification(message, type = 'info') {
             // Crear elemento de notificación
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 25px;
-                border-radius: 8px;
+                top: 30px;
+                right: 30px;
+                padding: 20px 30px;
+                border-radius: 12px;
                 color: white;
-                font-weight: 500;
-                z-index: 1000;
+                font-weight: 600;
+                font-family: 'Orbitron', monospace;
+                z-index: 10000;
                 max-width: 400px;
                 word-wrap: break-word;
-                animation: slideInRight 0.3s ease-out;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                animation: cyberSlideIn 0.5s ease-out;
+                backdrop-filter: blur(20px);
+                border: 2px solid;
+                text-transform: uppercase;
+                letter-spacing: 1px;
             `;
 
             // Estilos según el tipo
             switch (type) {
                 case 'success':
-                    notification.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                    notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 100, 0.2))';
+                    notification.style.borderColor = 'rgba(0, 255, 0, 0.5)';
+                    notification.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.3)';
                     break;
                 case 'error':
-                    notification.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+                    notification.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 100, 0, 0.2))';
+                    notification.style.borderColor = 'rgba(255, 0, 0, 0.5)';
+                    notification.style.boxShadow = '0 0 30px rgba(255, 0, 0, 0.3)';
                     break;
                 case 'info':
                 default:
-                    notification.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                    notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2))';
+                    notification.style.borderColor = 'rgba(0, 255, 255, 0.5)';
+                    notification.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.3)';
                     break;
             }
 
@@ -732,59 +1214,217 @@
 
             // Auto-eliminar después de 4 segundos
             setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                notification.style.animation = 'cyberSlideOut 0.5s ease-out';
                 setTimeout(() => {
                     if (document.body.contains(notification)) {
                         document.body.removeChild(notification);
                     }
-                }, 300);
+                }, 500);
             }, 4000);
         }
 
-        // Mensaje de bienvenida
+        // Mensaje de bienvenida cyberpunk
         function showWelcomeMessage() {
             setTimeout(() => {
-                showNotification(`🎉 Bienvenido al Panel de Administración, ${currentUserName}!`, 'success');
-            }, 500);
+                showCyberNotification(`🎉 NEXUS ADMIN ONLINE | AGENT: ${currentUserName.toUpperCase()}`, 'success');
+            }, 1000);
+
+            setTimeout(() => {
+                showCyberNotification('⚡ NEURAL MATRIX SYNCHRONIZED | ALL SYSTEMS OPERATIONAL', 'info');
+            }, 3000);
         }
 
-        // Agregar estilos para animaciones
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+        // Generar partículas dinámicas
+        function generateParticles() {
+            const particlesContainer = document.querySelector('.floating-particles');
+            if (!particlesContainer) return;
+
+            // Generar más partículas aleatoriamente
+            setInterval(() => {
+                if (particlesContainer.children.length < 15) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = '0s';
+                    particle.style.animationDuration = (10 + Math.random() * 5) + 's';
+                    particlesContainer.appendChild(particle);
+
+                    // Eliminar partícula después de la animación
+                    setTimeout(() => {
+                        if (particlesContainer.contains(particle)) {
+                            particlesContainer.removeChild(particle);
+                        }
+                    }, 15000);
+                }
+            }, 2000);
+        }
+
+        // Efecto de escritura cyberpunk
+        function typewriterEffect() {
+            const title = document.querySelector('.header h1');
+            if (title) {
+                const text = title.textContent;
+                title.textContent = '';
+                let i = 0;
+
+                const typeWriter = () => {
+                    if (i < text.length) {
+                        title.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 100);
+                    }
+                };
+
+                setTimeout(typeWriter, 500);
             }
-            @keyframes slideOutRight {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
+        }
+
+        // Agregar estilos para animaciones cyberpunk
+        const cyberStyle = document.createElement('style');
+        cyberStyle.textContent = `
+            @keyframes cyberSlideIn {
+                from { 
+                    transform: translateX(100%) rotateY(90deg); 
+                    opacity: 0; 
+                }
+                to { 
+                    transform: translateX(0) rotateY(0deg); 
+                    opacity: 1; 
+                }
+            }
+            @keyframes cyberSlideOut {
+                from { 
+                    transform: translateX(0) rotateY(0deg); 
+                    opacity: 1; 
+                }
+                to { 
+                    transform: translateX(100%) rotateY(-90deg); 
+                    opacity: 0; 
+                }
+            }
+            @keyframes slideInLeft {
+                from { 
+                    transform: translateX(-50px); 
+                    opacity: 0; 
+                }
+                to { 
+                    transform: translateX(0); 
+                    opacity: 1; 
+                }
             }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(cyberStyle);
 
-        // Atajos de teclado
+        // Atajos de teclado cyberpunk
         document.addEventListener('keydown', function (e) {
             if (e.ctrlKey || e.metaKey) {
                 switch (e.key.toLowerCase()) {
                     case 'f':
                         e.preventDefault();
                         document.getElementById('searchInput').focus();
+                        showCyberNotification('🔍 NEURAL SEARCH ACTIVATED', 'info');
                         break;
                     case 'r':
                         e.preventDefault();
                         refreshData();
                         break;
+                    case 'n':
+                        e.preventDefault();
+                        crearNuevoUsuario();
+                        break;
                 }
+            }
+
+            // Easter egg: Matrix effect
+            if (e.key === 'Enter' && e.shiftKey && e.ctrlKey) {
+                activateMatrixMode();
             }
         });
 
+        // Modo Matrix (Easter egg)
+        function activateMatrixMode() {
+            showCyberNotification('🔥 MATRIX MODE ACTIVATED', 'success');
+            document.body.style.filter = 'hue-rotate(120deg) contrast(1.2) saturate(1.5)';
+
+            // Crear lluvia de caracteres
+            createMatrixRain();
+
+            setTimeout(() => {
+                document.body.style.filter = 'none';
+                showCyberNotification('⚡ MATRIX MODE DEACTIVATED', 'info');
+            }, 10000);
+        }
+
+        function createMatrixRain() {
+            const canvas = document.createElement('canvas');
+            canvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                opacity: 0.3;
+            `;
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const matrix = '01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()';
+            const drops = [];
+
+            for (let x = 0; x < canvas.width / 10; x++) {
+                drops[x] = 1;
+            }
+
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#00ffff';
+                ctx.font = '12px Orbitron';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrix[Math.floor(Math.random() * matrix.length)];
+                    ctx.fillText(text, i * 10, drops[i] * 10);
+
+                    if (drops[i] * 10 > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            const matrixInterval = setInterval(drawMatrix, 35);
+
+            setTimeout(() => {
+                clearInterval(matrixInterval);
+                if (document.body.contains(canvas)) {
+                    document.body.removeChild(canvas);
+                }
+            }, 10000);
+        }
+
         // Prevenir cierre accidental
         window.addEventListener('beforeunload', function (e) {
-            // Solo mostrar confirmación si hay cambios pendientes
-            // Por ahora lo comentamos para no molestar
+            // Solo en modo desarrollo
             // e.preventDefault();
-            // e.returnValue = '¿Estás seguro de que quieres salir del panel de administración?';
+            // e.returnValue = 'DISCONNECT FROM NEXUS ADMIN?';
         });
+
+        // Monitor de rendimiento cyberpunk
+        setInterval(() => {
+            if (window.performance && window.performance.memory) {
+                const memory = window.performance.memory;
+                const usedMemory = (memory.usedJSHeapSize / 1048576).toFixed(2);
+
+                if (usedMemory > 100) {
+                    console.warn(`⚠️ NEXUS MEMORY WARNING: ${usedMemory} MB neural load detected`);
+                }
+            }
+        }, 30000);
     </script>
 </body>
 

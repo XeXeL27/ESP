@@ -968,10 +968,11 @@
                     <span class="control-icon">ℹ️</span>
                     <span>Información del Sistema</span>
                 </button>
-                <button class="control-btn" onclick="emergencyProtocol()">
-                    <span class="control-icon">🛑</span>
-                    <span>Parada de Emergencia</span>
-                </button>
+                <a href="/dashboard" class="control-btn">
+                    <span class="control-icon">🏠</span>
+                    <span>Volver al Dashboard</span>
+                </a>
+
 
                 <form th:action="@{/control/logout}" method="post">
                     <button type="submit" class="control-btn logout-btn">
@@ -1094,10 +1095,14 @@
 
                 } else if (response.status === 401) {
                     throw new Error('SECURITY BREACH | Session expired | Re-authentication required');
+                } else if (response.status === 429) {
+                    const errorText = await response.text();
+                    showNotification('⏳ TIEMPO DE ESPERA | ' + errorText, 'info');
                 } else {
                     const errorText = await response.text().catch(() => 'Communication failure');
                     throw new Error(`NEXUS ERROR | ${errorText}`);
                 }
+
 
             } catch (error) {
                 console.error('NEXUS ERROR:', error);

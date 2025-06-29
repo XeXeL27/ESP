@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema ESP - Login</title>
+    <title>NEXUS LOGIN - Sistema ESP</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -14,32 +16,152 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0a0a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Fondo cyberpunk animado */
+        .cyber-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 100, 0, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            z-index: -2;
+        }
+
+        /* Grid hexagonal animado */
+        .hex-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image:
+                linear-gradient(30deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(150deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(30deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(150deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+            z-index: -1;
+            animation: hexFlow 20s linear infinite;
+        }
+
+        @keyframes hexFlow {
+            0% {
+                transform: translateY(0px);
+            }
+
+            100% {
+                transform: translateY(140px);
+            }
+        }
+
+        /* Líneas de circuito */
+        .circuit-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             overflow: hidden;
         }
 
-        /* Partículas animadas de fondo */
-        .particles {
+        .circuit-line {
             position: absolute;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            height: 1px;
+            animation: circuitFlow 8s linear infinite;
+            opacity: 0.5;
+        }
+
+        .circuit-line:nth-child(1) {
+            top: 15%;
+            width: 200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .circuit-line:nth-child(2) {
+            top: 35%;
+            width: 150px;
+            left: -150px;
+            animation-delay: 2s;
+        }
+
+        .circuit-line:nth-child(3) {
+            top: 55%;
+            width: 180px;
+            left: -180px;
+            animation-delay: 4s;
+        }
+
+        .circuit-line:nth-child(4) {
+            top: 75%;
+            width: 220px;
+            left: -220px;
+            animation-delay: 1s;
+        }
+
+        @keyframes circuitFlow {
+            0% {
+                left: -250px;
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.5;
+            }
+
+            80% {
+                opacity: 0.5;
+            }
+
+            100% {
+                left: 100vw;
+                opacity: 0;
+            }
+        }
+
+        /* Partículas flotantes cyberpunk */
+        .cyber-particles {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
             z-index: 1;
+            pointer-events: none;
         }
 
         .particle {
             position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.8);
+            width: 3px;
+            height: 3px;
+            background: rgba(0, 255, 255, 0.8);
             border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+            animation: floatCyber 8s ease-in-out infinite;
+            box-shadow: 0 0 6px rgba(0, 255, 255, 0.5);
+        }
+
+        .particle:nth-child(odd) {
+            background: rgba(255, 0, 128, 0.8);
+            box-shadow: 0 0 6px rgba(255, 0, 128, 0.5);
+            animation-duration: 10s;
         }
 
         .particle:nth-child(1) {
@@ -69,7 +191,7 @@
 
         .particle:nth-child(6) {
             left: 60%;
-            animation-delay: 5s;
+            animation-delay: 0.5s;
         }
 
         .particle:nth-child(7) {
@@ -87,7 +209,7 @@
             animation-delay: 3.5s;
         }
 
-        @keyframes float {
+        @keyframes floatCyber {
 
             0%,
             100% {
@@ -109,270 +231,468 @@
             }
         }
 
+        /* Contenedor principal de login */
         .login-container {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(145deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            backdrop-filter: blur(25px);
+            border: 2px solid rgba(0, 255, 255, 0.3);
             border-radius: 20px;
-            padding: 40px;
-            min-width: 400px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
-            z-index: 2;
+            padding: 50px;
+            min-width: 450px;
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 10;
             position: relative;
-            animation: slideIn 0.8s ease-out;
+            animation: loginSlideIn 1s ease-out;
+            overflow: hidden;
         }
 
-        @keyframes slideIn {
-            from {
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: loginScan 4s ease-in-out infinite;
+        }
+
+        @keyframes loginSlideIn {
+            0% {
                 opacity: 0;
-                transform: translateY(-50px);
+                transform: translateY(-100px) rotateX(90deg);
             }
 
-            to {
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        @keyframes loginScan {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Logo y título */
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .logo p {
+            color: rgba(0, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        /* Grupos de formulario */
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+            opacity: 0;
+            animation: formSlideUp 0.8s ease-out forwards;
+        }
+
+        .form-group:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .form-group:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .form-group:nth-child(3) {
+            animation-delay: 0.7s;
+        }
+
+        @keyframes formSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo h1 {
-            color: white;
-            font-size: 2.5em;
-            font-weight: 300;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-
-        .logo p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .subtitle {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9em;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-
         .form-group input {
             width: 100%;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            padding: 18px 25px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #00ffff;
             font-size: 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
             outline: none;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
         }
 
         .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(0, 255, 255, 0.6);
+            font-weight: 400;
         }
 
         .form-group input:focus {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            border-color: rgba(0, 255, 255, 0.8);
             transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            box-shadow:
+                0 0 25px rgba(0, 255, 255, 0.4),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
         }
 
+        /* Botón de login cyberpunk */
         .login-btn {
             width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 18px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
+            transition: all 0.4s ease;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(255, 0, 128, 0.4));
+            border-color: rgba(0, 255, 255, 0.8);
+            transform: translateY(-3px);
+            box-shadow:
+                0 15px 35px rgba(0, 255, 255, 0.3),
+                0 0 50px rgba(0, 255, 255, 0.2);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Link de registro */
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .register-link a {
+            color: rgba(0, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 25px;
+            border-radius: 25px;
+            transition: all 0.4s ease;
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .register-link a:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            border-color: rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.3);
+        }
+
+        /* Mensajes de error y éxito */
+        .error-message {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 100, 0, 0.2));
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+            animation: errorShake 0.6s ease-in-out;
+            font-weight: 600;
+            backdrop-filter: blur(15px);
+            font-family: 'Orbitron', monospace;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
-            background: linear-gradient(135deg, #ee5a24, #ff6b6b);
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .register-link a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 10px 20px;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .register-link a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-        }
-
-        .error-message {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid rgba(255, 0, 0, 0.4);
-            color: #ffcccb;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            animation: shake 0.5s ease-in-out;
-        }
-
         .success-message {
-            background: rgba(0, 255, 0, 0.2);
-            border: 1px solid rgba(0, 255, 0, 0.4);
-            color: #90EE90;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 100, 0.2));
+            border: 2px solid rgba(0, 255, 0, 0.5);
+            color: #00ff88;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
             text-align: center;
-            animation: slideIn 0.5s ease-out;
+            animation: successBounce 0.8s ease-out;
+            font-weight: 600;
+            backdrop-filter: blur(15px);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        @keyframes shake {
+        @keyframes errorShake {
 
             0%,
             100% {
                 transform: translateX(0);
             }
 
-            25% {
-                transform: translateX(-5px);
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-8px);
             }
 
-            75% {
-                transform: translateX(5px);
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(8px);
             }
         }
 
-        .floating-shapes {
-            position: absolute;
+        @keyframes successBounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Formas flotantes cyberpunk */
+        .cyber-shapes {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            z-index: 1;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .shape {
+        .cyber-shape {
             position: absolute;
             opacity: 0.1;
-            animation: rotate 20s linear infinite;
+            animation: shapeFloat 15s linear infinite;
         }
 
-        .shape:nth-child(1) {
+        .cyber-shape:nth-child(1) {
             top: 20%;
             left: 10%;
             width: 60px;
             height: 60px;
-            background: white;
+            background: linear-gradient(45deg, #00ffff, #ff0080);
             border-radius: 50%;
             animation-delay: 0s;
         }
 
-        .shape:nth-child(2) {
+        .cyber-shape:nth-child(2) {
             top: 60%;
             right: 10%;
             width: 40px;
             height: 40px;
-            background: white;
-            transform: rotate(45deg);
+            background: linear-gradient(45deg, #ff0080, #ffff00);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
             animation-delay: 5s;
         }
 
-        .shape:nth-child(3) {
+        .cyber-shape:nth-child(3) {
             bottom: 20%;
             left: 20%;
             width: 50px;
             height: 50px;
-            background: white;
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            background: linear-gradient(45deg, #ffff00, #00ffff);
+            transform: rotate(45deg);
             animation-delay: 10s;
         }
 
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
+        @keyframes shapeFloat {
+            0% {
+                transform: rotate(0deg) translateY(0px);
             }
 
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Efectos de entrada suaves */
-        .form-group {
-            animation: slideUp 0.6s ease-out forwards;
-            opacity: 0;
-        }
-
-        .form-group:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .form-group:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .form-group:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            33% {
+                transform: rotate(120deg) translateY(-20px);
             }
 
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+            66% {
+                transform: rotate(240deg) translateY(20px);
+            }
+
+            100% {
+                transform: rotate(360deg) translateY(0px);
             }
         }
 
-        /* Responsivo */
-        @media (max-width: 480px) {
+        /* Efectos de carga */
+        .loading-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            animation: loading 2s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
             .login-container {
-                padding: 30px 20px;
-                min-width: 320px;
+                padding: 40px 30px;
+                min-width: 350px;
                 margin: 20px;
             }
 
             .logo h1 {
-                font-size: 2em;
+                font-size: 2.2rem;
+            }
+
+            .form-group input {
+                padding: 15px 20px;
+                font-size: 15px;
+            }
+
+            .login-btn {
+                padding: 15px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 35px 25px;
+                min-width: 320px;
+                margin: 15px;
+            }
+
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+
+            .logo p {
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Partículas animadas -->
-    <div class="particles">
+    <!-- Fondo cyberpunk -->
+    <div class="cyber-background"></div>
+
+    <!-- Grid hexagonal -->
+    <div class="hex-grid"></div>
+
+    <!-- Líneas de circuito -->
+    <div class="circuit-lines">
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+    </div>
+
+    <!-- Partículas cyberpunk -->
+    <div class="cyber-particles">
         <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
@@ -384,73 +704,415 @@
         <div class="particle"></div>
     </div>
 
-    <!-- Formas flotantes -->
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
+    <!-- Formas flotantes cyberpunk -->
+    <div class="cyber-shapes">
+        <div class="cyber-shape"></div>
+        <div class="cyber-shape"></div>
+        <div class="cyber-shape"></div>
     </div>
 
     <div class="login-container">
+        <div class="loading-effect"></div>
+
         <div class="logo">
-            <h1>🚀 Sistema ESP</h1>
-            <p>Dispositivo Único</p>
-            <p class="subtitle">Acceso Seguro con Token</p>
+            <h1 id="mainTitle">🚀 NEXUS ESP</h1>
+            <p>Acceso Neural Seguro</p>
+            <p class="subtitle">Autenticación con Token Único</p>
         </div>
 
         <!-- Mensaje de error -->
         <div th:if="${error}" class="error-message">
-            <span th:text="${error}"></span>
+            <span th:text="${error}">Error de acceso</span>
         </div>
 
         <!-- Mensaje de éxito -->
         <div th:if="${mensaje}" class="success-message">
-            <span th:text="${mensaje}"></span>
+            <span th:text="${mensaje}">Conexión exitosa</span>
         </div>
 
-        <form th:action="@{/login}" method="post">
+        <form th:action="@{/login}" method="post" id="loginForm">
             <div class="form-group">
-                <input type="text" name="user_name" placeholder="👤 Nombre de Usuario" required>
+                <input type="text" name="user_name" placeholder="👤 IDENTIFICADOR DE AGENTE" required>
             </div>
 
             <div class="form-group">
-                <input type="password" name="clave" placeholder="🔒 Contraseña" required>
+                <input type="password" name="clave" placeholder="🔒 CLAVE DE ACCESO" required>
             </div>
 
-            <button type="submit" class="login-btn">
-                Iniciar Sesión
+            <button type="submit" class="login-btn" id="loginButton">
+                INICIAR CONEXIÓN
             </button>
         </form>
-        <script>
-            // Agregar efecto de escritura al título
-            document.addEventListener('DOMContentLoaded', function () {
-                const title = document.querySelector('.logo h1');
-                const text = title.innerText;
-                title.innerText = '';
 
-                let i = 0;
-                const typeWriter = () => {
-                    if (i < text.length) {
-                        title.innerText += text.charAt(i);
-                        i++;
-                        setTimeout(typeWriter, 100);
-                    }
-                };
+    </div>
 
-                setTimeout(typeWriter, 500);
-            });
+    <script>
+        // Inicialización del sistema
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 NEXUS LOGIN PROTOCOL INITIATED...');
 
-            // Efecto de enfoque en inputs
-            document.querySelectorAll('input').forEach(input => {
+            // Efecto de escritura cyberpunk para el título
+            initiateTitleSequence();
+
+            // Configurar efectos de input
+            setupInputEffects();
+
+            // Configurar efectos del botón
+            setupButtonEffects();
+
+            // Mostrar mensaje de bienvenida
+            setTimeout(() => {
+                showCyberNotification('⚡ NEXUS ONLINE | NEURAL INTERFACE READY', 'info');
+            }, 1500);
+        });
+
+        // Efecto de escritura cyberpunk para el título
+        function initiateTitleSequence() {
+            const title = document.getElementById('mainTitle');
+            const text = title.textContent;
+            title.textContent = '';
+
+            let i = 0;
+            const typeWriter = () => {
+                if (i < text.length) {
+                    title.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 120);
+                } else {
+                    // Efecto de brillo al completar
+                    title.style.animation = 'gradientShift 3s ease-in-out infinite, titleGlow 2s ease-in-out';
+                }
+            };
+
+            setTimeout(typeWriter, 800);
+        }
+
+        // Configurar efectos de inputs
+        function setupInputEffects() {
+            document.querySelectorAll('input').forEach((input, index) => {
                 input.addEventListener('focus', function () {
                     this.parentElement.style.transform = 'scale(1.02)';
+                    this.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1)';
+
+                    // Efecto de sonido simulado
+                    console.log('🔊 NEURAL INTERFACE ACTIVATED');
                 });
 
                 input.addEventListener('blur', function () {
                     this.parentElement.style.transform = 'scale(1)';
                 });
+
+                input.addEventListener('input', function () {
+                    // Efecto de escritura cyberpunk
+                    this.style.borderColor = 'rgba(0, 255, 255, 0.8)';
+                    setTimeout(() => {
+                        this.style.borderColor = 'rgba(0, 255, 255, 0.3)';
+                    }, 200);
+                });
             });
-        </script>
+        }
+
+        // Configurar efectos del botón
+        function setupButtonEffects() {
+            const loginButton = document.getElementById('loginButton');
+            const loginForm = document.getElementById('loginForm');
+
+            loginButton.addEventListener('mouseenter', function () {
+                this.style.boxShadow = '0 15px 35px rgba(0, 255, 255, 0.4), 0 0 60px rgba(0, 255, 255, 0.3)';
+            });
+
+            loginForm.addEventListener('submit', function (e) {
+                loginButton.textContent = 'CONECTANDO...';
+                loginButton.style.background = 'linear-gradient(135deg, rgba(255, 255, 0, 0.3), rgba(0, 255, 255, 0.3))';
+
+                // Efecto de procesamiento
+                setTimeout(() => {
+                    loginButton.innerHTML = '<span style="animation: pulse 1s infinite;">PROCESANDO NEURAL LINK...</span>';
+                }, 500);
+            });
+        }
+
+        // Sistema de notificaciones cyberpunk
+        function showCyberNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                padding: 15px 25px;
+                border-radius: 10px;
+                color: white;
+                font-weight: 600;
+                font-family: 'Orbitron', monospace;
+                z-index: 10000;
+                max-width: 350px;
+                animation: cyberSlideIn 0.5s ease-out;
+                backdrop-filter: blur(20px);
+                border: 1px solid;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.8rem;
+            `;
+
+            switch (type) {
+                case 'success':
+                    notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 100, 0.2))';
+                    notification.style.borderColor = 'rgba(0, 255, 0, 0.5)';
+                    break;
+                case 'error':
+                    notification.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 100, 0, 0.2))';
+                    notification.style.borderColor = 'rgba(255, 0, 0, 0.5)';
+                    break;
+                case 'info':
+                default:
+                    notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2))';
+                    notification.style.borderColor = 'rgba(0, 255, 255, 0.5)';
+                    break;
+            }
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'cyberSlideOut 0.5s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        // Agregar estilos de animación dinámicamente
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes cyberSlideIn {
+                from { transform: translateX(100%) rotateY(90deg); opacity: 0; }
+                to { transform: translateX(0) rotateY(0deg); opacity: 1; }
+            }
+            @keyframes cyberSlideOut {
+                from { transform: translateX(0) rotateY(0deg); opacity: 1; }
+                to { transform: translateX(100%) rotateY(-90deg); opacity: 0; }
+            }
+            @keyframes titleGlow {
+                0%, 100% { text-shadow: 0 0 30px rgba(0, 255, 255, 0.5); }
+                50% { text-shadow: 0 0 50px rgba(0, 255, 255, 0.8), 0 0 70px rgba(255, 0, 128, 0.5); }
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        // Atajos de teclado cyberpunk
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                showCyberNotification('🔥 NEURAL BOOST ACTIVATED', 'success');
+                document.body.style.filter = 'hue-rotate(180deg) saturate(1.5)';
+                setTimeout(() => {
+                    document.body.style.filter = 'none';
+                }, 2000);
+            }
+        });
+
+        // Generar partículas adicionales dinámicamente
+        setInterval(() => {
+            const particlesContainer = document.querySelector('.cyber-particles');
+            if (particlesContainer && particlesContainer.children.length < 12) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = '0s';
+                particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+
+                // Color aleatorio cyberpunk
+                const colors = [
+                    'rgba(0, 255, 255, 0.8)',
+                    'rgba(255, 0, 128, 0.8)',
+                    'rgba(255, 255, 0, 0.8)'
+                ];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.background = randomColor;
+                particle.style.boxShadow = `0 0 6px ${randomColor}`;
+
+                particlesContainer.appendChild(particle);
+
+                // Eliminar partícula después de la animación
+                setTimeout(() => {
+                    if (particlesContainer.contains(particle)) {
+                        particlesContainer.removeChild(particle);
+                    }
+                }, 12000);
+            }
+        }, 3000);
+
+        // Efectos de monitor de actividad
+        let activityTimeout;
+        function resetActivityMonitor() {
+            clearTimeout(activityTimeout);
+            activityTimeout = setTimeout(() => {
+                showCyberNotification('⚠️ INACTIVIDAD DETECTADA | NEURAL LINK EN ESPERA', 'info');
+            }, 30000); // 30 segundos
+        }
+
+        // Monitorear actividad del usuario
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetActivityMonitor, true);
+        });
+
+        resetActivityMonitor();
+
+        // Efecto de glitch en error
+        window.addEventListener('error', function () {
+            console.log('🔴 NEURAL ERROR DETECTED');
+            document.body.style.animation = 'glitch 0.3s ease-in-out';
+            setTimeout(() => {
+                document.body.style.animation = 'none';
+            }, 300);
+        });
+
+        // Detectar conexión de red
+        window.addEventListener('online', () => {
+            showCyberNotification('🌐 NEURAL NETWORK RESTORED', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            showCyberNotification('⚠️ NEURAL NETWORK DOWN', 'error');
+        });
+
+        // Efecto de entrada suave para elementos
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'formSlideUp 0.8s ease-out forwards';
+                }
+            });
+        });
+
+        document.querySelectorAll('.form-group').forEach(group => {
+            observer.observe(group);
+        });
+
+        // Prevenir inspección (opcional para tema cyberpunk)
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+                showCyberNotification('🔒 ACCESO DENEGADO | PROTOCOLO DE SEGURIDAD', 'error');
+            }
+        });
+
+        // Easter egg: Secuencia Konami
+        let konamiSequence = [];
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+
+        document.addEventListener('keydown', function (e) {
+            konamiSequence.push(e.code);
+            if (konamiSequence.length > konamiCode.length) {
+                konamiSequence.shift();
+            }
+
+            if (JSON.stringify(konamiSequence) === JSON.stringify(konamiCode)) {
+                activateNexusMode();
+                konamiSequence = [];
+            }
+        });
+
+        function activateNexusMode() {
+            showCyberNotification('🔥 NEXUS MODE ACTIVATED | NEURAL OVERDRIVE', 'success');
+
+            // Efecto matrix
+            document.body.style.filter = 'hue-rotate(120deg) contrast(1.3) saturate(2)';
+
+            // Cambiar colores temporalmente
+            const loginContainer = document.querySelector('.login-container');
+            loginContainer.style.borderColor = 'rgba(255, 0, 255, 0.8)';
+            loginContainer.style.boxShadow = '0 30px 60px rgba(255, 0, 255, 0.4)';
+
+            // Crear lluvia de código
+            createCodeRain();
+
+            setTimeout(() => {
+                document.body.style.filter = 'none';
+                loginContainer.style.borderColor = 'rgba(0, 255, 255, 0.3)';
+                loginContainer.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.5)';
+                showCyberNotification('⚡ NEXUS MODE DEACTIVATED', 'info');
+            }, 8000);
+        }
+
+        function createCodeRain() {
+            const canvas = document.createElement('canvas');
+            canvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 5;
+                opacity: 0.4;
+                pointer-events: none;
+            `;
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const matrix = 'NEXUS01010101ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*()[]{}';
+            const drops = [];
+
+            for (let x = 0; x < canvas.width / 12; x++) {
+                drops[x] = 1;
+            }
+
+            function drawCodeRain() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#00ffff';
+                ctx.font = '12px Orbitron';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrix[Math.floor(Math.random() * matrix.length)];
+                    ctx.fillText(text, i * 12, drops[i] * 12);
+
+                    if (drops[i] * 12 > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            const rainInterval = setInterval(drawCodeRain, 40);
+
+            setTimeout(() => {
+                clearInterval(rainInterval);
+                if (document.body.contains(canvas)) {
+                    document.body.removeChild(canvas);
+                }
+            }, 8000);
+        }
+
+        // Música ambiente cyberpunk (sin audio real, solo efectos visuales)
+        function simulateCyberAmbience() {
+            setInterval(() => {
+                const intensity = Math.random();
+                if (intensity > 0.8) {
+                    // Efecto de pulso en el container
+                    const container = document.querySelector('.login-container');
+                    container.style.transform = 'scale(1.01)';
+                    setTimeout(() => {
+                        container.style.transform = 'scale(1)';
+                    }, 100);
+                }
+            }, 2000);
+        }
+
+        simulateCyberAmbience();
+
+        console.log('🎮 NEXUS LOGIN READY | Neural interface online | Easter eggs active');
+        console.log('💡 TIP: Try Ctrl+Enter for neural boost, or discover the Konami code...');
+    </script>
 </body>
 
 </html>

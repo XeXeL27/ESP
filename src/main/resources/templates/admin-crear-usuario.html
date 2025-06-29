@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Usuario - Panel Admin</title>
+    <title>NEXUS AGENT CREATOR - Sistema ESP</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -13,100 +15,364 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Rajdhani', sans-serif;
+            background: #0a0a0a;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        /* Fondo cyberpunk animado */
+        .cyber-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 100, 0, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            z-index: -2;
+        }
+
+        /* Grid hexagonal animado */
+        .hex-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            background-image:
+                linear-gradient(30deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(150deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(30deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff),
+                linear-gradient(150deg, #00ffff 12%, transparent 12.5%, transparent 87%, #00ffff 87.5%, #00ffff);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+            z-index: -1;
+            animation: hexFlow 20s linear infinite;
+        }
+
+        @keyframes hexFlow {
+            0% {
+                transform: translateY(0px);
+            }
+
+            100% {
+                transform: translateY(140px);
+            }
+        }
+
+        /* Líneas de circuito */
+        .circuit-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             overflow: hidden;
-            animation: slideIn 0.8s ease-out;
         }
 
-        @keyframes slideIn {
-            from {
+        .circuit-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            height: 1px;
+            animation: circuitFlow 8s linear infinite;
+            opacity: 0.4;
+        }
+
+        .circuit-line:nth-child(1) {
+            top: 10%;
+            width: 250px;
+            left: -250px;
+            animation-delay: 0s;
+        }
+
+        .circuit-line:nth-child(2) {
+            top: 30%;
+            width: 200px;
+            left: -200px;
+            animation-delay: 2s;
+        }
+
+        .circuit-line:nth-child(3) {
+            top: 50%;
+            width: 300px;
+            left: -300px;
+            animation-delay: 4s;
+        }
+
+        .circuit-line:nth-child(4) {
+            top: 70%;
+            width: 180px;
+            left: -180px;
+            animation-delay: 1s;
+        }
+
+        .circuit-line:nth-child(5) {
+            top: 90%;
+            width: 220px;
+            left: -220px;
+            animation-delay: 3s;
+        }
+
+        @keyframes circuitFlow {
+            0% {
+                left: -300px;
                 opacity: 0;
-                transform: translateY(30px);
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            20% {
+                opacity: 0.4;
+            }
+
+            80% {
+                opacity: 0.4;
+            }
+
+            100% {
+                left: 100vw;
+                opacity: 0;
             }
         }
 
+        /* Partículas flotantes */
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(0, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float-particle 12s linear infinite;
+        }
+
+        .particle:nth-child(odd) {
+            background: rgba(255, 0, 128, 0.6);
+            animation-duration: 15s;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            left: 25%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(3) {
+            left: 40%;
+            animation-delay: 4s;
+        }
+
+        .particle:nth-child(4) {
+            left: 55%;
+            animation-delay: 1s;
+        }
+
+        .particle:nth-child(5) {
+            left: 70%;
+            animation-delay: 3s;
+        }
+
+        .particle:nth-child(6) {
+            left: 85%;
+            animation-delay: 5s;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Contenedor principal */
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, rgba(0, 255, 255, 0.05), rgba(255, 0, 128, 0.05));
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            animation: containerSlideIn 1s ease-out;
+            backdrop-filter: blur(20px);
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: containerScan 5s ease-in-out infinite;
+        }
+
+        @keyframes containerSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px) rotateX(10deg);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        @keyframes containerScan {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
             color: white;
-            padding: 25px;
+            padding: 30px;
             text-align: center;
+            position: relative;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
         }
 
         .header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #ffff00, #00ffff);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.2rem;
+            color: rgba(0, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
         }
 
+        /* Navegación */
         .navigation {
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-            background: #f8f9fa;
+            padding: 25px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(26, 26, 46, 0.2));
         }
 
         .back-btn {
-            background: linear-gradient(135deg, #6c757d, #495057);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.3), rgba(73, 80, 87, 0.3));
+            color: #00ffff;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            padding: 12px 25px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .back-btn:hover {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.5), rgba(73, 80, 87, 0.5));
+            border-color: rgba(0, 255, 255, 0.6);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.3);
         }
 
+        /* Contenido del formulario */
         .form-content {
-            padding: 30px;
+            padding: 35px;
+            position: relative;
+            z-index: 2;
         }
 
         .form-section {
-            margin-bottom: 35px;
+            margin-bottom: 40px;
+            position: relative;
         }
 
         .section-title {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            color: #00ffff;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
         .form-group {
@@ -119,224 +385,333 @@
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            color: #495057;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .form-input:valid {
-            border-color: #28a745;
-        }
-
-        .form-input.generated {
-            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-            border-color: #667eea;
+            margin-bottom: 10px;
+            color: rgba(0, 255, 255, 0.9);
             font-weight: 600;
-            color: #495057;
-        }
-
-        .credentials-section {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .generate-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
+            font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.4);
+            color: #00ffff;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder {
+            color: rgba(0, 255, 255, 0.5);
+        }
+
+        .form-input:focus {
+            border-color: rgba(0, 255, 255, 0.8);
+            box-shadow:
+                0 0 25px rgba(0, 255, 255, 0.4),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            transform: scale(1.02);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .form-input:valid {
+            border-color: rgba(0, 255, 0, 0.6);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .form-input.generated {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 128, 0.1));
+            border-color: rgba(0, 255, 255, 0.6);
+            font-weight: 700;
+            color: #ffffff;
+            animation: generatedGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes generatedGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            }
+        }
+
+        /* Sección de credenciales */
+        .credentials-section {
+            background: linear-gradient(145deg, rgba(0, 255, 255, 0.05), rgba(255, 0, 128, 0.05));
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            backdrop-filter: blur(15px);
+        }
+
+        .credentials-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.02), transparent);
+            animation: credentialsGlow 6s ease-in-out infinite;
+        }
+
+        @keyframes credentialsGlow {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 128, 0.2));
+            color: #ffffff;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Orbitron', monospace;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
         .generate-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(255, 0, 128, 0.4));
+            border-color: rgba(0, 255, 255, 0.8);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.4);
         }
 
         .generate-btn:disabled {
-            background: #6c757d;
+            background: rgba(108, 117, 125, 0.3);
+            border-color: rgba(108, 117, 125, 0.5);
+            color: rgba(255, 255, 255, 0.5);
             cursor: not-allowed;
             transform: none;
         }
 
+        /* Display de credenciales */
         .credentials-display {
             display: none;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            backdrop-filter: blur(20px);
         }
 
         .credentials-display.show {
             display: block;
-            animation: fadeIn 0.5s ease-out;
+            animation: credentialsSlideIn 0.8s ease-out;
         }
 
-        @keyframes fadeIn {
-            from {
+        @keyframes credentialsSlideIn {
+            0% {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px) rotateX(90deg);
             }
 
-            to {
+            100% {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) rotateX(0deg);
             }
+        }
+
+        .credentials-display h4 {
+            margin-bottom: 20px;
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .credential-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f8f9fa;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
         }
 
         .credential-label {
             font-weight: 600;
-            color: #495057;
-        }
-
-        .credential-value {
-            font-family: 'Courier New', monospace;
-            background: #f8f9fa;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: 500;
-        }
-
-        .submit-section {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
+            color: rgba(0, 255, 255, 0.8);
+            font-family: 'Orbitron', monospace;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
+        .credential-value {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        /* Botón de envío */
+        .submit-section {
+            text-align: center;
+            padding-top: 25px;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.3), rgba(32, 201, 151, 0.3));
+            color: #ffffff;
+            border: 2px solid rgba(0, 255, 0, 0.5);
+            padding: 18px 45px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.1rem;
+            font-family: 'Orbitron', monospace;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.5), rgba(32, 201, 151, 0.5));
+            border-color: rgba(0, 255, 0, 0.8);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 255, 0, 0.4);
         }
 
         .submit-btn:disabled {
-            background: #6c757d;
+            background: rgba(108, 117, 125, 0.3);
+            border-color: rgba(108, 117, 125, 0.5);
+            color: rgba(255, 255, 255, 0.5);
             cursor: not-allowed;
             transform: none;
         }
 
+        /* Alertas cyberpunk */
         .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 500;
+            padding: 18px;
+            border-radius: 10px;
+            margin: 25px 35px;
+            font-weight: 600;
+            border: 1px solid;
+            backdrop-filter: blur(15px);
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .alert-success {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            color: #155724;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 100, 0.1));
+            border-color: rgba(0, 255, 0, 0.3);
+            color: #00ff88;
         }
 
         .alert-error {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(253, 126, 20, 0.1));
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #721c24;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(255, 100, 0, 0.1));
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
         }
 
         .alert-info {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            color: #0c5460;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 150, 255, 0.1));
+            border-color: rgba(0, 255, 255, 0.3);
+            color: #00ddff;
         }
 
+        /* Mensajes de validación */
         .validation-message {
-            font-size: 0.85rem;
-            margin-top: 5px;
-            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #ff4757;
+            font-weight: 500;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .validation-message.valid {
-            color: #28a745;
+            color: #00ff88;
         }
 
         .required {
-            color: #dc3545;
+            color: #ff4757;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .form-container {
-                margin: 10px;
-            }
-
-            .header h1 {
-                font-size: 1.8rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .credentials-section {
-                padding: 20px 15px;
-            }
-        }
-
+        /* Loading */
         .loading {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 25px;
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 3px solid rgba(0, 255, 255, 0.1);
+            border-top: 3px solid #00ffff;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -348,31 +723,106 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .form-container {
+                margin: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .credentials-section {
+                padding: 25px 20px;
+            }
+
+            .form-content {
+                padding: 25px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .submit-btn {
+                padding: 15px 35px;
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Fondo cyberpunk -->
+    <div class="cyber-background"></div>
+
+    <!-- Grid hexagonal -->
+    <div class="hex-grid"></div>
+
+    <!-- Líneas de circuito -->
+    <div class="circuit-lines">
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-line"></div>
+    </div>
+
+    <!-- Partículas flotantes -->
+    <div class="floating-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
     <div class="form-container">
         <!-- Header -->
         <div class="header">
-            <h1>👤 Crear Nuevo Usuario</h1>
-            <p>Registrar persona y generar credenciales automáticamente</p>
+            <h1 id="mainTitle">👤 NEXUS AGENT CREATOR</h1>
+            <p>Protocolo de Creación de Nueva Identidad Neural</p>
         </div>
 
         <!-- Navegación -->
         <div class="navigation">
             <a href="/dashboard" class="back-btn">
-                ← Volver al Dashboard
+                ← Volver al Nexus Central
             </a>
         </div>
 
         <!-- Mensajes -->
-        <div th:if="${mensaje}" class="alert alert-success" style="margin: 20px;">
-            <span th:text="${mensaje}"></span>
+        <div th:if="${mensaje}" class="alert alert-success">
+            <span th:text="${mensaje}">Mensaje de éxito</span>
         </div>
 
-        <div th:if="${error}" class="alert alert-error" style="margin: 20px;">
-            <span th:text="${error}"></span>
+        <div th:if="${error}" class="alert alert-error">
+            <span th:text="${error}">Mensaje de error</span>
         </div>
 
         <!-- Contenido del formulario -->
@@ -381,13 +831,14 @@
 
                 <!-- Sección 1: Datos de la Persona -->
                 <div class="form-section">
-                    <h3 class="section-title">📋 Datos de la Persona</h3>
+                    <h3 class="section-title">📋 Datos de Identidad Neural</h3>
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="nombre">Nombre <span class="required">*</span></label>
+                            <label class="form-label" for="nombre">Nombre Principal <span
+                                    class="required">*</span></label>
                             <input type="text" id="nombre" name="nombre" class="form-input"
-                                placeholder="Ingresa el nombre" required minlength="2">
+                                placeholder="Identificador Primario" required minlength="2">
                             <div class="validation-message" id="nombreValidation"></div>
                         </div>
 
@@ -395,18 +846,18 @@
                             <label class="form-label" for="paterno">Apellido Paterno <span
                                     class="required">*</span></label>
                             <input type="text" id="paterno" name="paterno" class="form-input"
-                                placeholder="Ingresa el apellido paterno" required minlength="2">
+                                placeholder="Secuencia Paterna" required minlength="2">
                             <div class="validation-message" id="paternoValidation"></div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="materno">Apellido Materno</label>
                             <input type="text" id="materno" name="materno" class="form-input"
-                                placeholder="Ingresa el apellido materno">
+                                placeholder="Secuencia Materna (Opcional)">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="ci">Carnet de Identidad <span
+                            <label class="form-label" for="ci">Cédula de identidad <span
                                     class="required">*</span></label>
                             <input type="text" id="ci" name="ci" class="form-input" placeholder="Ej: 12345678" required
                                 pattern="[0-9]{7,10}">
@@ -415,55 +866,58 @@
                     </div>
 
                     <div class="alert alert-info">
-                        <strong>ℹ️ Información:</strong>
-                        Complete los datos de la persona. Los campos marcados con (*) son obligatorios.
-                        El CI debe tener entre 7 y 10 dígitos.
+                        <strong>ℹ️ Protocolo Neural:</strong>
+                        Complete los datos de identidad. Los campos marcados con (*) son obligatorios.
+                        El ID Neural debe tener entre 7 y 10 dígitos para sincronización.
                     </div>
                 </div>
 
                 <!-- Sección 2: Credenciales Automáticas -->
                 <div class="form-section">
-                    <h3 class="section-title">🔐 Credenciales de Usuario</h3>
+                    <h3 class="section-title">🔐 Generador de Credenciales Nexus</h3>
 
                     <div class="credentials-section">
                         <button type="button" class="generate-btn" id="generateBtn" onclick="generarCredenciales()">
-                            🎲 Generar Credenciales Automáticamente
+                            🎲 Iniciar Protocolo de Credenciales
                         </button>
 
                         <div class="alert alert-info">
-                            <strong>💡 Tip:</strong>
-                            Las credenciales se generarán automáticamente basándose en los datos de la persona.
-                            <br>• <strong>Usuario:</strong> Se creará usando nombre y apellido
-                            <br>• <strong>Contraseña:</strong> Se generará una contraseña segura aleatoria
+                            <strong>💡 Algoritmo Neural:</strong>
+                            Las credenciales se generarán automáticamente usando algoritmos cuánticos.
+                            <br>• <strong>Agente ID:</strong> Se creará usando patrones neurales
+                            <br>• <strong>Clave de Acceso:</strong> Generación criptográfica avanzada
                         </div>
 
                         <div class="credentials-display" id="credentialsDisplay">
-                            <h4 style="margin-bottom: 15px; color: #495057;">📄 Credenciales Generadas:</h4>
+                            <h4>📄 Credenciales Nexus Generadas:</h4>
 
                             <div class="credential-item">
-                                <span class="credential-label">👤 Nombre de Usuario:</span>
+                                <span class="credential-label">👤 ID de Agente:</span>
                                 <span class="credential-value" id="generatedUsername">-</span>
                             </div>
 
                             <div class="credential-item">
-                                <span class="credential-label">🔒 Contraseña:</span>
+                                <span class="credential-label">🔒 Clave Neural:</span>
                                 <span class="credential-value" id="generatedPassword">-</span>
                             </div>
 
                             <div class="credential-item">
-                                <span class="credential-label">🎭 Rol:</span>
-                                <span class="credential-value">USUARIO</span>
+                                <span class="credential-label">🎭 Nivel de Acceso:</span>
+                                <span class="credential-value">USUARIO ESTÁNDAR</span>
                             </div>
 
                             <div class="credential-item">
-                                <span class="credential-label">📊 Estado:</span>
+                                <span class="credential-label">📊 Estado Neural:</span>
                                 <span class="credential-value">ACTIVO</span>
                             </div>
 
                             <div
-                                style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; border: 1px solid #ffeaa7;">
-                                <strong>⚠️ Importante:</strong> Guarde estas credenciales en un lugar seguro.
-                                Una vez creado el usuario, deberá proporcionar estos datos al usuario final.
+                                style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1)); border-radius: 8px; border: 1px solid rgba(255, 193, 7, 0.3);">
+                                <strong style="color: #ffc107;">⚠️ Protocolo de Seguridad:</strong>
+                                <span style="color: rgba(255, 255, 255, 0.9);">
+                                    Almacene estas credenciales en un vault seguro.
+                                    Una vez creado el agente, proporcione estos datos al usuario final.
+                                </span>
                             </div>
                         </div>
 
@@ -477,16 +931,20 @@
                 <div class="submit-section">
                     <div class="loading" id="loadingIndicator">
                         <div class="spinner"></div>
-                        <p>Creando usuario...</p>
+                        <p
+                            style="color: #00ffff; font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: 2px;">
+                            Procesando Agente Neural...
+                        </p>
                     </div>
 
                     <button type="submit" class="submit-btn" id="submitBtn" disabled>
-                        ✅ Crear Usuario Completo
+                        ✅ Ejecutar Creación de Agente
                     </button>
 
-                    <p style="margin-top: 15px; color: #6c757d; font-size: 0.9rem;">
-                        Al hacer clic en "Crear Usuario", se registrará la persona y se creará automáticamente
-                        el usuario con las credenciales generadas.
+                    <p
+                        style="margin-top: 20px; color: rgba(0, 255, 255, 0.7); font-size: 0.9rem; font-family: 'Orbitron', monospace;">
+                        Al ejecutar "Creación de Agente", se registrará la identidad neural y se creará
+                        automáticamente el agente con las credenciales cuánticas generadas.
                     </p>
                 </div>
             </form>
@@ -505,22 +963,65 @@
 
         // Inicializar cuando se carga la página
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('📝 Iniciando formulario de creación de usuario...');
+            console.log('🚀 NEXUS AGENT CREATOR INITIATED...');
+
+            // Efecto de escritura para el título
+            initializeTitleEffect();
 
             // Configurar validación en tiempo real
             setupFormValidation();
 
-            // Mostrar mensaje de bienvenida
+            // Generar partículas dinámicas
+            generateDynamicParticles();
+
+            // Mostrar mensaje de bienvenida cyberpunk
             setTimeout(() => {
-                showNotification(`🛠️ Formulario listo para crear usuarios - Admin: ${currentAdmin}`, 'info');
-            }, 500);
+                showCyberNotification(`🛠️ NEXUS AGENT CREATOR ONLINE - Admin: ${currentAdmin.toUpperCase()}`, 'info');
+            }, 1000);
+
+            setTimeout(() => {
+                showCyberNotification('⚡ NEURAL INTERFACE READY | QUANTUM PROTOCOLS ACTIVE', 'success');
+            }, 3000);
         });
+
+        // Efecto de escritura cyberpunk para el título
+        function initializeTitleEffect() {
+            const title = document.getElementById('mainTitle');
+            const text = title.textContent;
+            title.textContent = '';
+
+            let i = 0;
+            const typeWriter = () => {
+                if (i < text.length) {
+                    title.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                } else {
+                    // Efecto de brillo al completar
+                    title.style.animation = 'gradientShift 3s ease-in-out infinite';
+                }
+            };
+
+            setTimeout(typeWriter, 800);
+        }
 
         // Configurar validación en tiempo real
         function setupFormValidation() {
             const nombre = document.getElementById('nombre');
             const paterno = document.getElementById('paterno');
             const ci = document.getElementById('ci');
+
+            // Configurar efectos de focus cyberpunk
+            [nombre, paterno, ci].forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1)';
+                    showCyberNotification('🔊 NEURAL INTERFACE ACTIVATED', 'info');
+                });
+
+                input.addEventListener('blur', function () {
+                    this.style.boxShadow = '0 0 25px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1)';
+                });
+            });
 
             nombre.addEventListener('input', validateNombre);
             paterno.addEventListener('input', validatePaterno);
@@ -536,17 +1037,17 @@
             });
         }
 
-        // Validaciones individuales
+        // Validaciones individuales cyberpunk
         function validateNombre() {
             const nombre = document.getElementById('nombre');
             const validation = document.getElementById('nombreValidation');
 
             if (nombre.value.length < 2) {
-                validation.textContent = 'El nombre debe tener al menos 2 caracteres';
+                validation.textContent = 'SECUENCIA MÍNIMA: 2 CARACTERES';
                 validation.className = 'validation-message';
                 return false;
             } else {
-                validation.textContent = '✓ Nombre válido';
+                validation.textContent = '✓ IDENTIDAD PRIMARIA VÁLIDA';
                 validation.className = 'validation-message valid';
                 return true;
             }
@@ -557,11 +1058,11 @@
             const validation = document.getElementById('paternoValidation');
 
             if (paterno.value.length < 2) {
-                validation.textContent = 'El apellido debe tener al menos 2 caracteres';
+                validation.textContent = 'CÓDIGO PATERNO INSUFICIENTE';
                 validation.className = 'validation-message';
                 return false;
             } else {
-                validation.textContent = '✓ Apellido válido';
+                validation.textContent = '✓ SECUENCIA PATERNA CONFIRMADA';
                 validation.className = 'validation-message valid';
                 return true;
             }
@@ -573,11 +1074,11 @@
             const ciPattern = /^[0-9]{7,10}$/;
 
             if (!ciPattern.test(ci.value)) {
-                validation.textContent = 'El CI debe tener entre 7 y 10 dígitos';
+                validation.textContent = 'ID NEURAL: 7-10 DÍGITOS REQUERIDOS';
                 validation.className = 'validation-message';
                 return false;
             } else {
-                validation.textContent = '✓ CI válido';
+                validation.textContent = '✓ ID NEURAL SINCRONIZADO';
                 validation.className = 'validation-message valid';
                 return true;
             }
@@ -591,102 +1092,110 @@
 
             // Validar que los campos requeridos estén completos
             if (!nombre || !paterno || !ci) {
-                showNotification('⚠️ Complete los campos obligatorios (Nombre, Apellido Paterno, CI) antes de generar credenciales', 'error');
+                showCyberNotification('⚠️ DATOS NEURALES INCOMPLETOS | COMPLETE CAMPOS OBLIGATORIOS', 'error');
                 return;
             }
 
             // Validar que los datos sean válidos
             if (!validateNombre() || !validatePaterno() || !validateCI()) {
-                showNotification('❌ Corrija los errores en el formulario antes de generar credenciales', 'error');
+                showCyberNotification('❌ ERROR EN PROTOCOLO NEURAL | CORRIJA DATOS INVÁLIDOS', 'error');
                 return;
             }
 
-            showNotification('🎲 Generando credenciales automáticamente...', 'info');
+            showCyberNotification('🎲 INICIANDO ALGORITMO CUÁNTICO DE CREDENCIALES...', 'info');
 
-            // Generar nombre de usuario
-            const username = generateUsername(nombre, paterno, ci);
+            // Simular procesamiento cyberpunk
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.textContent = 'PROCESANDO...';
+            generateBtn.disabled = true;
 
-            // Generar contraseña segura
-            const password = generateSecurePassword();
+            setTimeout(() => {
+                // Generar nombre de usuario
+                const username = generateQuantumUsername(nombre, paterno, ci);
 
-            // Mostrar credenciales generadas
-            document.getElementById('generatedUsername').textContent = username;
-            document.getElementById('generatedPassword').textContent = password;
+                // Generar contraseña cuántica
+                const password = generateQuantumPassword();
 
-            // Llenar campos ocultos
-            document.getElementById('user_name').value = username;
-            document.getElementById('clave').value = password;
+                // Mostrar credenciales generadas
+                document.getElementById('generatedUsername').textContent = username;
+                document.getElementById('generatedPassword').textContent = password;
 
-            // Mostrar sección de credenciales
-            const credentialsDisplay = document.getElementById('credentialsDisplay');
-            credentialsDisplay.classList.add('show');
+                // Llenar campos ocultos
+                document.getElementById('user_name').value = username;
+                document.getElementById('clave').value = password;
 
-            // Marcar como generadas y habilitar botón
-            credentialsGenerated = true;
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('generateBtn').textContent = '🔄 Regenerar Credenciales';
+                // Mostrar sección de credenciales con efecto
+                const credentialsDisplay = document.getElementById('credentialsDisplay');
+                credentialsDisplay.classList.add('show');
 
-            showNotification('✅ Credenciales generadas exitosamente', 'success');
+                // Marcar como generadas y habilitar botón
+                credentialsGenerated = true;
+                document.getElementById('submitBtn').disabled = false;
+                generateBtn.textContent = '🔄 REGENERAR CREDENCIALES NEXUS';
+                generateBtn.disabled = false;
+
+                showCyberNotification('✅ CREDENCIALES CUÁNTICAS GENERADAS | PROTOCOLO COMPLETADO', 'success');
+            }, 2000);
         }
 
-        // Generar nombre de usuario único
-        function generateUsername(nombre, paterno, ci) {
-            // Normalizar strings (quitar acentos, convertir a minúsculas)
-            const normalizeString = (str) => {
+        // Generar nombre de usuario cuántico
+        function generateQuantumUsername(nombre, paterno, ci) {
+            // Normalizar strings con algoritmo cyberpunk
+            const quantumNormalize = (str) => {
                 return str.normalize('NFD')
                     .replace(/[\u0300-\u036f]/g, '')
                     .toLowerCase()
                     .replace(/[^a-z0-9]/g, '');
             };
 
-            const nombreNorm = normalizeString(nombre);
-            const paternoNorm = normalizeString(paterno);
-            const ciSuffix = ci.slice(-3); // Últimos 3 dígitos del CI
+            const nombreQuantum = quantumNormalize(nombre);
+            const paternoQuantum = quantumNormalize(paterno);
+            const neuralSuffix = ci.slice(-3); // Últimos 3 dígitos del CI
 
-            // Diferentes patrones para generar username
-            const patterns = [
-                `${nombreNorm}.${paternoNorm}`,
-                `${nombreNorm}_${paternoNorm}`,
-                `${nombreNorm}${paternoNorm}`,
-                `${nombreNorm.substring(0, 3)}${paternoNorm}${ciSuffix}`,
-                `${nombreNorm}${paternoNorm.substring(0, 3)}${ciSuffix}`
+            // Patrones cuánticos para generar username
+            const quantumPatterns = [
+                `${nombreQuantum}.${paternoQuantum}`,
+                `${nombreQuantum}_${paternoQuantum}`,
+                `${nombreQuantum}${paternoQuantum}`,
+                `agent_${nombreQuantum}${neuralSuffix}`,
+                `nexus_${nombreQuantum.substring(0, 3)}${paternoQuantum}${neuralSuffix}`
             ];
 
-            // Por ahora usar el primer patrón, en el futuro se puede verificar duplicados
-            return patterns[0];
+            // Seleccionar patrón cuántico (primer patrón por defecto)
+            return quantumPatterns[0];
         }
 
-        // Generar contraseña segura
-        function generateSecurePassword() {
-            const length = 12;
+        // Generar contraseña cuántica
+        function generateQuantumPassword() {
+            const length = 14; // Longitud cuántica
             const lowercase = 'abcdefghijklmnopqrstuvwxyz';
             const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             const numbers = '0123456789';
-            const symbols = '!@#$%&*';
+            const quantumSymbols = '!@#$%&*+-=';
 
-            let password = '';
+            let quantumPassword = '';
 
-            // Asegurar al menos un carácter de cada tipo
-            password += getRandomChar(uppercase);
-            password += getRandomChar(lowercase);
-            password += getRandomChar(numbers);
-            password += getRandomChar(symbols);
+            // Asegurar al menos un carácter de cada tipo cuántico
+            quantumPassword += getQuantumChar(uppercase);
+            quantumPassword += getQuantumChar(lowercase);
+            quantumPassword += getQuantumChar(numbers);
+            quantumPassword += getQuantumChar(quantumSymbols);
 
             // Completar la longitud restante
-            const allChars = uppercase + lowercase + numbers + symbols;
+            const allQuantumChars = uppercase + lowercase + numbers + quantumSymbols;
             for (let i = 4; i < length; i++) {
-                password += getRandomChar(allChars);
+                quantumPassword += getQuantumChar(allQuantumChars);
             }
 
-            // Mezclar la contraseña
-            return shuffleString(password);
+            // Aplicar algoritmo de mezcla cuántica
+            return quantumShuffle(quantumPassword);
         }
 
-        function getRandomChar(str) {
+        function getQuantumChar(str) {
             return str[Math.floor(Math.random() * str.length)];
         }
 
-        function shuffleString(str) {
+        function quantumShuffle(str) {
             return str.split('').sort(() => 0.5 - Math.random()).join('');
         }
 
@@ -695,11 +1204,11 @@
             credentialsGenerated = false;
             document.getElementById('credentialsDisplay').classList.remove('show');
             document.getElementById('submitBtn').disabled = true;
-            document.getElementById('generateBtn').textContent = '🎲 Generar Credenciales Automáticamente';
+            document.getElementById('generateBtn').textContent = '🎲 INICIAR PROTOCOLO DE CREDENCIALES';
             document.getElementById('user_name').value = '';
             document.getElementById('clave').value = '';
 
-            showNotification('⚠️ Los datos cambiaron. Regenere las credenciales.', 'info');
+            showCyberNotification('⚠️ DATOS NEURALES MODIFICADOS | REGENERAR CREDENCIALES REQUERIDO', 'info');
         }
 
         // Manejar envío del formulario
@@ -707,7 +1216,7 @@
             e.preventDefault();
 
             if (!credentialsGenerated) {
-                showNotification('❌ Debe generar las credenciales antes de crear el usuario', 'error');
+                showCyberNotification('❌ PROTOCOLO INCOMPLETO | GENERAR CREDENCIALES CUÁNTICAS PRIMERO', 'error');
                 return;
             }
 
@@ -716,41 +1225,91 @@
 
             loadingIndicator.style.display = 'block';
             submitBtn.disabled = true;
+            submitBtn.textContent = 'PROCESANDO AGENTE NEURAL...';
 
-            showNotification('🔄 Creando usuario completo...', 'info');
+            showCyberNotification('🔄 EJECUTANDO CREACIÓN DE AGENTE NEXUS...', 'info');
 
-            // Enviar formulario
-            this.submit();
+            // Simular efecto de procesamiento
+            setTimeout(() => {
+                // Enviar formulario
+                this.submit();
+            }, 1500);
         });
 
-        // Sistema de notificaciones
-        function showNotification(message, type = 'info') {
+        // Generar partículas dinámicas
+        function generateDynamicParticles() {
+            const particlesContainer = document.querySelector('.floating-particles');
+            if (!particlesContainer) return;
+
+            setInterval(() => {
+                if (particlesContainer.children.length < 10) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = '0s';
+                    particle.style.animationDuration = (10 + Math.random() * 5) + 's';
+
+                    // Color aleatorio cyberpunk
+                    const colors = [
+                        'rgba(0, 255, 255, 0.6)',
+                        'rgba(255, 0, 128, 0.6)',
+                        'rgba(255, 255, 0, 0.6)'
+                    ];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.background = randomColor;
+
+                    particlesContainer.appendChild(particle);
+
+                    // Eliminar partícula después de la animación
+                    setTimeout(() => {
+                        if (particlesContainer.contains(particle)) {
+                            particlesContainer.removeChild(particle);
+                        }
+                    }, 15000);
+                }
+            }, 3000);
+        }
+
+        // Sistema de notificaciones cyberpunk
+        function showCyberNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 25px;
-                border-radius: 8px;
+                top: 30px;
+                right: 30px;
+                padding: 18px 28px;
+                border-radius: 12px;
                 color: white;
-                font-weight: 500;
-                z-index: 1000;
-                max-width: 400px;
+                font-weight: 600;
+                font-family: 'Orbitron', monospace;
+                z-index: 10000;
+                max-width: 420px;
                 word-wrap: break-word;
-                animation: slideInRight 0.3s ease-out;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                animation: cyberSlideIn 0.5s ease-out;
+                backdrop-filter: blur(20px);
+                border: 2px solid;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-size: 0.85rem;
+                line-height: 1.4;
             `;
 
             switch (type) {
                 case 'success':
-                    notification.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                    notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 100, 0.2))';
+                    notification.style.borderColor = 'rgba(0, 255, 0, 0.5)';
+                    notification.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.3)';
                     break;
                 case 'error':
-                    notification.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+                    notification.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 100, 0, 0.2))';
+                    notification.style.borderColor = 'rgba(255, 0, 0, 0.5)';
+                    notification.style.boxShadow = '0 0 30px rgba(255, 0, 0, 0.3)';
                     break;
                 case 'info':
                 default:
-                    notification.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                    notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2))';
+                    notification.style.borderColor = 'rgba(0, 255, 255, 0.5)';
+                    notification.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.3)';
                     break;
             }
 
@@ -758,28 +1317,111 @@
             document.body.appendChild(notification);
 
             setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                notification.style.animation = 'cyberSlideOut 0.5s ease-out';
                 setTimeout(() => {
                     if (document.body.contains(notification)) {
                         document.body.removeChild(notification);
                     }
-                }, 300);
-            }, 4000);
+                }, 500);
+            }, 5000);
         }
 
-        // Agregar estilos para animaciones
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
+        // Agregar estilos de animación dinámicamente
+        const cyberStyleSheet = document.createElement('style');
+        cyberStyleSheet.textContent = `
+            @keyframes cyberSlideIn {
+                from { 
+                    transform: translateX(100%) rotateY(90deg); 
+                    opacity: 0; 
+                }
+                to { 
+                    transform: translateX(0) rotateY(0deg); 
+                    opacity: 1; 
+                }
             }
-            @keyframes slideOutRight {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
+            @keyframes cyberSlideOut {
+                from { 
+                    transform: translateX(0) rotateY(0deg); 
+                    opacity: 1; 
+                }
+                to { 
+                    transform: translateX(100%) rotateY(-90deg); 
+                    opacity: 0; 
+                }
             }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(cyberStyleSheet);
+
+        // Atajos de teclado cyberpunk
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'g':
+                        e.preventDefault();
+                        if (!credentialsGenerated) {
+                            generarCredenciales();
+                        }
+                        showCyberNotification('🎲 GENERACIÓN CUÁNTICA ACTIVADA', 'info');
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        if (credentialsGenerated) {
+                            resetCredentials();
+                        }
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        if (credentialsGenerated) {
+                            document.getElementById('crearUsuarioForm').dispatchEvent(new Event('submit'));
+                        }
+                        break;
+                }
+            }
+
+            // Easter egg: Activar modo matrix
+            if (e.key === 'Enter' && e.shiftKey && e.ctrlKey) {
+                activateMatrixMode();
+            }
+        });
+
+        // Modo Matrix (Easter egg)
+        function activateMatrixMode() {
+            showCyberNotification('🔥 MATRIX MODE ACTIVATED | NEURAL OVERDRIVE', 'success');
+
+            document.body.style.filter = 'hue-rotate(120deg) contrast(1.3) saturate(2)';
+
+            // Cambiar colores temporalmente
+            const formContainer = document.querySelector('.form-container');
+            formContainer.style.borderColor = 'rgba(255, 0, 255, 0.8)';
+            formContainer.style.boxShadow = '0 30px 60px rgba(255, 0, 255, 0.4)';
+
+            setTimeout(() => {
+                document.body.style.filter = 'none';
+                formContainer.style.borderColor = 'rgba(0, 255, 255, 0.2)';
+                formContainer.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.5)';
+                showCyberNotification('⚡ MATRIX MODE DEACTIVATED', 'info');
+            }, 8000);
+        }
+
+        // Monitor de actividad neural
+        let activityTimeout;
+        function resetNeuralMonitor() {
+            clearTimeout(activityTimeout);
+            activityTimeout = setTimeout(() => {
+                showCyberNotification('⚠️ INACTIVIDAD NEURAL DETECTADA | SISTEMA EN ESPERA', 'info');
+            }, 60000); // 1 minuto
+        }
+
+        // Monitorear actividad del usuario
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetNeuralMonitor, true);
+        });
+
+        resetNeuralMonitor();
+
+        console.log('🎮 NEXUS AGENT CREATOR READY | Quantum protocols online');
+        console.log('💡 SHORTCUTS: Ctrl+G (Generate), Ctrl+R (Reset), Ctrl+S (Submit)');
+        console.log('🎭 EASTER EGG: Ctrl+Shift+Enter for Matrix Mode');
     </script>
 </body>
 
