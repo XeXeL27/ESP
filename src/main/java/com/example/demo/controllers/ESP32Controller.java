@@ -13,7 +13,11 @@ import com.example.demo.models.servicio.ESP32Service;
 import com.example.demo.models.servicio.AutenticacionService;
 import com.example.demo.models.servicio.LogService;
 import com.example.demo.models.dao.LogAccesoDao;
+import com.example.demo.models.dao.UsuarioDao;
 import com.example.demo.models.entity.LogAcceso;
+import com.example.demo.models.entity.Usuario;
+
+import java.util.HashMap;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,9 +43,14 @@ public class ESP32Controller {
     @Autowired
     private LogAccesoDao logAccesoDao;
 
+    @Autowired
+    private UsuarioDao usuarioDao;
+
     /**
      * Verificar autenticación antes de ejecutar comandos
      */
+
+    
     private boolean isAuthenticated(HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         String userToken = (String) session.getAttribute("userToken");
@@ -56,28 +65,74 @@ public class ESP32Controller {
     /**
      * Registrar log de acceso con información completa
      */
-    private void registrarLog(String userName, String accion, String resultado, 
-                             String detalles, HttpServletRequest request) {
-        try {
-            String direccionIp = obtenerDireccionIpReal(request);
-            String userAgent = request.getHeader("User-Agent");
-            
-            LogAcceso log = new LogAcceso();
-            log.setUserName(userName);
-            log.setAccion(accion);
-            log.setResultado(resultado);
-            log.setDetalles(detalles);
-            log.setDireccionIp(direccionIp);
-            log.setUserAgent(userAgent);
-            log.setFechaHora(LocalDateTime.now());
-            
-            logAccesoDao.save(log);
-            
-            System.out.println("📝 Log registrado: " + userName + " - " + accion + " - " + resultado);
-        } catch (Exception e) {
-            System.err.println("❌ Error registrando log: " + e.getMessage());
+private void registrarLog(String userName, String accion, String resultado, 
+                         String detalles, HttpServletRequest request) {
+    try {
+        String direccionIp = obtenerDireccionIpReal(request);
+        String userAgent = request.getHeader("User-Agent");
+        
+        // Obtener el ID del usuario desde la base de datos
+        Long idUsuario = null;
+        if (userName != null && !userName.equals("ANONIMO") && !userName.equals("SISTEMA")) {
+            try {
+                Optional<Usuario> usuarioOpt = usuarioDao.findByUserName(userName);
+                if (usuarioOpt.isPresent()) {
+                    idUsuario = usuarioOpt.get().getIdUsuario();
+                    System.out.println("✅ ID Usuario encontrado: " + idUsuario + " para " + userName);
+                } else {
+                    System.out.println("⚠️ Usuario no encontrado en BD: " + userName);
+                }
+            } catch (Exception e) {
+                System.err.println("⚠️ Error al buscar usuario en BD: " + userName + " - " + e.getMessage());
+            }
         }
+        
+        LogAcceso log = new LogAcceso();
+        log.setIdUsuario(idUsuario); // CRÍTICO: Setear el ID del usuario
+        log.setUserName(userName);
+        log.setAccion(accion);
+        log.setResultado(resultado);
+        log.setDetalles(detalles);
+        log.setDireccionIp(direccionIp);
+        log.setUserAgent(userAgent);
+        log.setFechaHora(LocalDateTime.now());
+        
+        // Determinar tipo de acción basado en la acción
+        String tipoAccion = determinarTipoAccion(accion);
+        log.setTipoAccion(tipoAccion);
+        
+        // Guardar el log
+        logAccesoDao.save(log);
+        
+        System.out.println("📝 Log registrado exitosamente: " + userName + " (ID: " + idUsuario + ") - " + accion + " - " + resultado);
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error registrando log: " + e.getMessage());
+        e.printStackTrace(); // Para debug detallado
     }
+}
+
+/**
+ * Determinar tipo de acción basado en la acción realizada
+ */
+private String determinarTipoAccion(String accion) {
+    if (accion == null) return "SISTEMA";
+    
+    String accionUpper = accion.toUpperCase();
+    
+    if (accionUpper.contains("LOGIN") || accionUpper.contains("LOGOUT") || accionUpper.contains("AUTENTICAR")) {
+        return "AUTENTICACION";
+    } else if (accionUpper.contains("ABRIR") || accionUpper.contains("CERRAR") || 
+               accionUpper.contains("ESP32") || accionUpper.contains("COMANDO") || 
+               accionUpper.contains("TEST")) {
+        return "ESP32";
+    } else if (accionUpper.contains("ADMIN") || accionUpper.contains("DASHBOARD") || 
+               accionUpper.contains("CONSULTAR")) {
+        return "ADMINISTRACION";
+    } else {
+        return "SISTEMA";
+    }
+}
 
     /**
      * Obtener dirección IP real del cliente
@@ -196,29 +251,29 @@ public ResponseEntity<String> abrirPuerta(HttpSession session, HttpServletReques
         }
     }
 
-    @GetMapping("/estado")
-    public ResponseEntity<String> obtenerEstado(HttpSession session, HttpServletRequest request) {
-        if (!isAuthenticated(session)) {
-            registrarLog("ANONIMO", "CONSULTAR_ESTADO", "ERROR", "Sesión no válida", request);
-            return ResponseEntity.status(401).body("❌ Sesión no válida");
-        }
-        
-        String userName = (String) session.getAttribute("userName");
-        
-        try {
-            String estado = esp32Service.obtenerEstadoConexion();
-            
-            registrarLog(userName, "CONSULTAR_ESTADO", "EXITOSO", 
-                       "Estado consultado: " + estado, request);
-            
-            return ResponseEntity.ok("📡 Estado: " + estado);
-        } catch (Exception e) {
-            registrarLog(userName, "CONSULTAR_ESTADO", "ERROR", 
-                       "Error obteniendo estado: " + e.getMessage(), request);
-            return ResponseEntity.internalServerError()
-                .body("💥 Error al obtener estado: " + e.getMessage());
-        }
+@GetMapping("/estado")
+public ResponseEntity<String> obtenerEstado(HttpSession session, HttpServletRequest request) {
+    if (!isAuthenticated(session)) {
+        registrarLog("ANONIMO", "CONSULTAR_ESTADO", "ERROR", "Sesión no válida", request);
+        return ResponseEntity.status(401).body("❌ Sesión no válida");
     }
+    
+    String userName = (String) session.getAttribute("userName");
+    
+    try {
+        String estado = esp32Service.obtenerEstadoConexion();
+        
+        registrarLog(userName, "CONSULTAR_ESTADO", "EXITOSO", 
+                   "Estado consultado: " + estado, request);
+        
+        return ResponseEntity.ok("📡 Estado: " + estado);
+    } catch (Exception e) {
+        registrarLog(userName, "CONSULTAR_ESTADO", "ERROR", 
+                   "Error obteniendo estado: " + e.getMessage(), request);
+        return ResponseEntity.internalServerError()
+            .body("💥 Error al obtener estado: " + e.getMessage());
+    }
+}
 
     @PostMapping("/test-conexion")
     public ResponseEntity<String> testConexion(HttpSession session, HttpServletRequest request) {

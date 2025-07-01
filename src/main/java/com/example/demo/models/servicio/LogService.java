@@ -46,4 +46,13 @@ public interface LogService {
      * Limpiar logs antiguos
      */
     void limpiarLogsAntiguos(int diasAntes);
+
+    List<LogAcceso> obtenerLogsPorTipoAccion(String tipoAccion);
+
+    long contarLogsPorTipoAccion(String tipoAccion);
+
+    List<Object[]> obtenerEstadisticasPorTipoAccion();
+
+    List<LogAcceso> obtenerLogsPorUsuarioYTipo(String userName, String tipoAccion);
+
 }

@@ -68,7 +68,23 @@ public interface LogAccesoDao extends JpaRepository<LogAcceso, Long> {
      */
     @Query("SELECT l FROM LogAcceso l ORDER BY l.fechaHora DESC")
     List<LogAcceso> findTopNByOrderByFechaHoraDesc(Pageable pageable);
-    
+
+    @Query("SELECT l FROM LogAcceso l WHERE l.tipoAccion = :tipoAccion ORDER BY l.fechaHora DESC")
+    List<LogAcceso> findByTipoAccion(@Param("tipoAccion") String tipoAccion);
+
+    @Query("SELECT COUNT(l) FROM LogAcceso l WHERE l.tipoAccion = :tipoAccion")
+    long countByTipoAccion(@Param("tipoAccion") String tipoAccion);
+
+
+    @Query("SELECT l.tipoAccion, COUNT(l) as total, " +
+       "SUM(CASE WHEN l.resultado = 'EXITOSO' THEN 1 ELSE 0 END) as exitosos, " +
+       "SUM(CASE WHEN l.resultado = 'ERROR' THEN 1 ELSE 0 END) as errores " +
+       "FROM LogAcceso l GROUP BY l.tipoAccion ORDER BY total DESC")
+    List<Object[]> getEstadisticasPorTipoAccion();
+
+    @Query("SELECT l FROM LogAcceso l WHERE l.userName = :userName AND l.tipoAccion = :tipoAccion ORDER BY l.fechaHora DESC")
+    List<LogAcceso> findByUserNameAndTipoAccion(@Param("userName") String userName, @Param("tipoAccion") String tipoAccion);
+
     /**
      * Obtener estadísticas generales del sistema
      */

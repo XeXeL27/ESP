@@ -12,7 +12,11 @@ import lombok.Setter;
 public class LogAcceso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_log")
     private Long idLog;
+    
+    @Column(name = "id_usuario") // AGREGAR ESTE CAMPO
+    private Long idUsuario;
     
     @Column(name = "user_name", nullable = false)
     private String userName;
@@ -25,6 +29,9 @@ public class LogAcceso {
     
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora;
+
+    @Column(name = "tipo_accion") // Hacer nullable ya que no siempre se llena
+    private String tipoAccion;
     
     @Column(name = "direccion_ip")
     private String direccionIp;
@@ -38,6 +45,7 @@ public class LogAcceso {
     // Constructor por defecto
     public LogAcceso() {
         this.fechaHora = LocalDateTime.now();
+        this.tipoAccion = "SISTEMA"; // Valor por defecto
     }
     
     // Constructor con parámetros básicos
@@ -55,5 +63,12 @@ public class LogAcceso {
         this.direccionIp = direccionIp;
         this.userAgent = userAgent;
         this.detalles = detalles;
+    }
+    
+    // Constructor con ID de usuario
+    public LogAcceso(Long idUsuario, String userName, String accion, String resultado, 
+                     String direccionIp, String userAgent, String detalles) {
+        this(userName, accion, resultado, direccionIp, userAgent, detalles);
+        this.idUsuario = idUsuario;
     }
 }

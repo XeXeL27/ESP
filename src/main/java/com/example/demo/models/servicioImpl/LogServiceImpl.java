@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.models.dao.LogAccesoDao;
+import com.example.demo.models.dao.UsuarioDao;
 import com.example.demo.models.entity.LogAcceso;
 import com.example.demo.models.servicio.LogService;
 
@@ -21,6 +22,9 @@ public class LogServiceImpl implements LogService {
     
     @Autowired
     private LogAccesoDao logAccesoDao;
+
+    @Autowired
+    private UsuarioDao usuarioDao;
     
     @Override
     public void registrarAccesoExitoso(String userName, String accion) {
@@ -452,4 +456,49 @@ public class LogServiceImpl implements LogService {
             System.err.println("❌ Error al limpiar logs por usuario: " + e.getMessage());
         }
     }
+
+    @Override
+@Transactional(readOnly = true)
+public List<LogAcceso> obtenerLogsPorTipoAccion(String tipoAccion) {
+    try {
+        return logAccesoDao.findByTipoAccion(tipoAccion);
+    } catch (Exception e) {
+        System.err.println("❌ Error al obtener logs por tipoAccion: " + e.getMessage());
+        return List.of();
+    }
+}
+
+@Override
+@Transactional(readOnly = true)
+public long contarLogsPorTipoAccion(String tipoAccion) {
+    try {
+        return logAccesoDao.countByTipoAccion(tipoAccion);
+    } catch (Exception e) {
+        System.err.println("❌ Error al contar logs por tipoAccion: " + e.getMessage());
+        return 0L;
+    }
+}
+
+@Override
+@Transactional(readOnly = true)
+public List<Object[]> obtenerEstadisticasPorTipoAccion() {
+    try {
+        return logAccesoDao.getEstadisticasPorTipoAccion();
+    } catch (Exception e) {
+        System.err.println("❌ Error al obtener estadísticas por tipoAccion: " + e.getMessage());
+        return List.of();
+    }
+}
+
+@Override
+@Transactional(readOnly = true)
+public List<LogAcceso> obtenerLogsPorUsuarioYTipo(String userName, String tipoAccion) {
+    try {
+        return logAccesoDao.findByUserNameAndTipoAccion(userName, tipoAccion);
+    } catch (Exception e) {
+        System.err.println("❌ Error al obtener logs por usuario y tipoAccion: " + e.getMessage());
+        return List.of();
+    }
+}
+
 }
