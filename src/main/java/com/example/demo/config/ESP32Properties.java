@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "esp32")
 public class ESP32Properties {
-    private String ip = "192.168.1.29";  // ISKRA_Ext: 192.168.1.21
+    private String ip = "192.168.156.223";  // ISKRA_Ext: 192.168.1.21
     private int port = 80;              // Valor por defecto
     private int timeout = 5000;         // Valor por defecto
 

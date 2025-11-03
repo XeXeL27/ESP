@@ -323,7 +323,7 @@ public class LogsController {
 
     /**
      * API para obtener logs de errores recientes
-     */
+        */
     @GetMapping("/api/recent-errors")
     @ResponseBody
     public ResponseEntity<?> obtenerErroresRecientes(HttpSession session) {
